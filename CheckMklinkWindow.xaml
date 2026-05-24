@@ -1,0 +1,128 @@
+<Window x:Class="MKLink.CheckMklinkWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Check mklink"
+        Width="920"
+        Height="620"
+        MinWidth="760"
+        MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI"
+        Background="{StaticResource BackgroundBrush}"
+        Foreground="{StaticResource TextBrush}">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource PanelBorderStyle}">
+            <StackPanel Margin="12">
+                <TextBlock Text="Check mklink"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextBrush}" />
+                <TextBlock Margin="0,4,0,0"
+                           Foreground="{StaticResource MutedTextBrush}"
+                           Text="Màu đỏ là mklink shortcut. Màu trắng là folder thật." />
+                <TextBlock Margin="0,4,0,0"
+                           Foreground="{StaticResource MutedTextBrush}"
+                           Text="{Binding SummaryText}" />
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1"
+                Margin="0,10,0,0"
+                Style="{StaticResource PanelBorderStyle}">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,8">
+                    <Button Content="Select mklink"
+                            Margin="0,0,8,0"
+                            Click="SelectMklinkButton_Click" />
+                    <Button Content="Select real folder"
+                            Margin="0,0,8,0"
+                            Click="SelectRealFolderButton_Click" />
+                    <Button Content="Select all"
+                            Margin="0,0,8,0"
+                            Click="SelectAllButton_Click" />
+                    <Button Content="Select none"
+                            Margin="0,0,8,0"
+                            Click="SelectNoneButton_Click" />
+                    <Button Content="Invert select"
+                            Margin="0,0,8,0"
+                            Click="InvertSelectButton_Click" />
+                    <Button Content="Delete selected"
+                            Margin="0,0,8,0"
+                            Click="DeleteSelectedButton_Click" />
+                    <Button Content="Delete all"
+                            Click="DeleteAllButton_Click" />
+                </StackPanel>
+
+                <DataGrid x:Name="CheckGrid"
+                          Grid.Row="1"
+                          ItemsSource="{Binding Entries}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="False"
+                          HeadersVisibility="Column"
+                          SelectionMode="Extended"
+                          GridLinesVisibility="All"
+                          HorizontalGridLinesBrush="White"
+                          VerticalGridLinesBrush="White"
+                          BorderBrush="White"
+                          BorderThickness="1">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Exists}" Value="False">
+                                    <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
+                        <DataGridCheckBoxColumn Header="Sel"
+                                                Width="54"
+                                                Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <DataGridTextColumn Header="Normalize Input"
+                                            Width="2*"
+                                            Binding="{Binding NormalizedInput}" />
+                        <DataGridTextColumn Header="Output"
+                                            Width="2*"
+                                            Binding="{Binding OutputPath}" />
+                        <DataGridTemplateColumn Header="Status"
+                                                Width="160">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Status}"
+                                               Foreground="{Binding StatusBrush}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2"
+                    Margin="0,10,0,0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Content="Close"
+                    Width="90"
+                    Click="CloseButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>
