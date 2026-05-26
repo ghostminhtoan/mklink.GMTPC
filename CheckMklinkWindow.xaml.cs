@@ -14,7 +14,7 @@ using MKLink.Models;
 
 namespace MKLink
 {
-    public partial class CheckMklinkWindow : Window, INotifyPropertyChanged
+    public partial class CheckMklinkWindow : UserControl, INotifyPropertyChanged
     {
         private readonly Func<IEnumerable<MklinkCheckEntry>> _entriesProvider;
         private readonly Action<List<int>> _deleteRowsBySourceIndices;
@@ -758,10 +758,6 @@ namespace MKLink
             return !entry.DestinationCheck;
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
 
         private static T FindParent<T>(DependencyObject child) where T : DependencyObject
         {

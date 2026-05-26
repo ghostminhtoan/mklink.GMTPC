@@ -48,6 +48,16 @@ namespace MKLink
             _viewModel = new MainViewModel();
             DataContext = _viewModel;
             Title = "MKLink Path Mapper | Build: " + GetBuildTimeText();
+
+            _checkMklinkWindow = new CheckMklinkWindow(
+                BuildMklinkCheckEntries,
+                DeleteCopyRowsBySourceIndices,
+                RunCopyDeleteMklinkFromCheckWindow,
+                RunDeleteMklinkFromCheckWindow,
+                MakeReverseFromCheckWindow,
+                MoveToDestinationFromCheckWindow);
+            CheckMklinkTab.Content = _checkMklinkWindow;
+
             _viewModel.CopyTab.DataChanged += CopyTab_DataChanged_ForCheckWindow;
         }
 
@@ -197,33 +207,6 @@ namespace MKLink
             }
         }
 
-        private void CheckMklinkButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_viewModel == null)
-            {
-                return;
-            }
-
-            if (_checkMklinkWindow != null)
-            {
-                _checkMklinkWindow.RefreshFromSource();
-                _checkMklinkWindow.Activate();
-                return;
-            }
-
-            _checkMklinkWindow = new CheckMklinkWindow(
-                BuildMklinkCheckEntries,
-                DeleteCopyRowsBySourceIndices,
-                RunCopyDeleteMklinkFromCheckWindow,
-                RunDeleteMklinkFromCheckWindow,
-                MakeReverseFromCheckWindow,
-                MoveToDestinationFromCheckWindow)
-            {
-                Owner = this
-            };
-            _checkMklinkWindow.Closed += CheckMklinkWindow_Closed;
-            _checkMklinkWindow.Show();
-        }
 
         private void DonateAuthorButton_Click(object sender, RoutedEventArgs e)
         {
@@ -705,14 +688,6 @@ namespace MKLink
             _viewModel.CopyTab.RemoveSourceItems(itemsToDelete);
         }
 
-        private void CheckMklinkWindow_Closed(object sender, EventArgs e)
-        {
-            if (_checkMklinkWindow != null)
-            {
-                _checkMklinkWindow.Closed -= CheckMklinkWindow_Closed;
-                _checkMklinkWindow = null;
-            }
-        }
 
         private static string CleanPathForCheck(string value)
         {

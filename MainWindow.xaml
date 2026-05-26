@@ -511,9 +511,6 @@
             <Button Content="Load .md"
                     Margin="6,0,0,0"
                     Click="LoadMarkdownButton_Click" />
-            <Button Content="Check mklink"
-                    Margin="8,0,0,0"
-                    Click="CheckMklinkButton_Click" />
         </ToolBar>
 
         <TabControl Grid.Row="1">
@@ -672,6 +669,9 @@
                         </TabItem>
                     </TabControl>
                 </Grid>
+            </TabItem>
+
+            <TabItem x:Name="CheckMklinkTab" Header="Check mklink">
             </TabItem>
 
             <TabItem Header="Reverse">
