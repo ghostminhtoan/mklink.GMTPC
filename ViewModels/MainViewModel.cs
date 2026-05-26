@@ -939,28 +939,53 @@ namespace MKLink.ViewModels
                 return;
             }
 
-            PathItem lastEmpty = null;
+            int nonEmptyCount = 0;
             for (int i = 0; i < SourceItems.Count; i++)
             {
-                if (SourceItems[i].IsEmpty)
+                if (!SourceItems[i].IsEmpty)
                 {
-                    lastEmpty = SourceItems[i];
+                    nonEmptyCount++;
                 }
             }
 
-            for (int i = 0; i < SourceItems.Count; i++)
+            if (nonEmptyCount >= 1)
             {
-                bool shouldBePlaceholder = ReferenceEquals(SourceItems[i], lastEmpty);
-                SourceItems[i].IsPlaceholder = shouldBePlaceholder;
-                if (SourceItems[i].IsEmpty)
+                for (int i = SourceItems.Count - 1; i >= 0; i--)
                 {
-                    RefreshItem(SourceItems[i]);
+                    if (SourceItems[i].IsEmpty)
+                    {
+                        SourceItems.RemoveAt(i);
+                    }
                 }
             }
-
-            if (lastEmpty == null)
+            else
             {
-                SourceItems.Add(new PathItem { IsPlaceholder = true });
+                PathItem lastEmpty = null;
+                for (int i = 0; i < SourceItems.Count; i++)
+                {
+                    if (SourceItems[i].IsEmpty)
+                    {
+                        lastEmpty = SourceItems[i];
+                    }
+                }
+
+                for (int i = SourceItems.Count - 1; i >= 0; i--)
+                {
+                    if (SourceItems[i].IsEmpty && !ReferenceEquals(SourceItems[i], lastEmpty))
+                    {
+                        SourceItems.RemoveAt(i);
+                    }
+                }
+
+                if (lastEmpty == null)
+                {
+                    SourceItems.Add(new PathItem { IsPlaceholder = true });
+                }
+                else
+                {
+                    lastEmpty.IsPlaceholder = true;
+                    RefreshItem(lastEmpty);
+                }
             }
         }
 
