@@ -58,6 +58,8 @@ namespace MKLink
                 MoveToDestinationFromCheckWindow);
             CheckMklinkTab.Content = _checkMklinkWindow;
 
+            _checkMklinkWindow.FilterCleared += CheckMklinkWindow_FilterCleared;
+
             _viewModel.CopyTab.DataChanged += CopyTab_DataChanged_ForCheckWindow;
 
             if (SearchBox != null)
@@ -756,6 +758,14 @@ namespace MKLink
             if (_checkMklinkWindow != null)
             {
                 _checkMklinkWindow.RefreshFromSource();
+            }
+        }
+
+        private void CheckMklinkWindow_FilterCleared(object sender, EventArgs e)
+        {
+            if (SearchBox != null)
+            {
+                SearchBox.Text = string.Empty;
             }
         }
 

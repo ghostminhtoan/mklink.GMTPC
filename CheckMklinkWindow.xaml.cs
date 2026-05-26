@@ -55,6 +55,7 @@ namespace MKLink
         public ObservableCollection<MklinkCheckEntry> Entries { get; private set; }
         public ICollectionView EntriesView { get; private set; }
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler FilterCleared;
 
         public string SummaryText
         {
@@ -105,6 +106,25 @@ namespace MKLink
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
             RefreshFromSource();
+        }
+
+        private void ClearFilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            _statusFilter = StatusFilterKind.All;
+            _destinationFilter = DestinationFilterKind.All;
+            _matchFilter = MatchFilterKind.All;
+            _searchKeyword = string.Empty;
+
+            var handler = FilterCleared;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
+
+            if (EntriesView != null)
+            {
+                EntriesView.Refresh();
+            }
         }
 
         private void SelectByPredicate(Func<MklinkCheckEntry, bool> predicate)
