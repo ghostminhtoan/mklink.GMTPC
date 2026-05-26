@@ -564,7 +564,7 @@
         <TabControl Grid.Row="1">
             <TabItem Header="Direct">
                 <Grid Margin="0,10,0,0">
-                    <TabControl>
+                    <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                         <TabItem Header="COPY" DataContext="{Binding CopyTab}">
                             <Grid Margin="0,10,0,0">
                                 <Grid.RowDefinitions>
@@ -724,7 +724,7 @@
 
             <TabItem Header="Reverse">
                 <Grid Margin="0,10,0,0">
-                    <TabControl>
+                    <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                         <TabItem Header="COPY REVERSE" DataContext="{Binding CopyReverseTab}">
                             <Grid Margin="0,10,0,0">
                                 <Grid.RowDefinitions>
