@@ -8,13 +8,15 @@ namespace MKLink.Models
     {
         private bool _isSelected;
 
-        public MklinkCheckEntry(int sourceIndex, string normalizedInput, string outputPath, bool exists, bool isLink, string status)
+        public MklinkCheckEntry(int sourceIndex, string normalizedInput, string outputPath, bool exists, bool isLink, bool destinationCheck, string alreadyMklinkTo, string status)
         {
             SourceIndex = sourceIndex;
             NormalizedInput = normalizedInput;
             OutputPath = outputPath;
             Exists = exists;
             IsLink = isLink;
+            DestinationCheck = destinationCheck;
+            AlreadyMklinkTo = alreadyMklinkTo;
             Status = status;
         }
 
@@ -29,6 +31,10 @@ namespace MKLink.Models
         public bool Exists { get; private set; }
 
         public bool IsLink { get; private set; }
+
+        public bool DestinationCheck { get; private set; }
+
+        public string AlreadyMklinkTo { get; private set; }
 
         public string Status { get; private set; }
 
@@ -49,12 +55,17 @@ namespace MKLink.Models
         {
             get
             {
-                if (!Exists)
+                if (string.Equals(Status, "MKLINK", System.StringComparison.OrdinalIgnoreCase))
                 {
-                    return Brushes.LightGray;
+                    return Brushes.Cyan;
                 }
 
-                return IsLink ? Brushes.IndianRed : Brushes.White;
+                if (string.Equals(Status, "Real folder", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return Brushes.Gold;
+                }
+
+                return Brushes.White;
             }
         }
 

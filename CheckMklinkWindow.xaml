@@ -13,6 +13,53 @@
         FontFamily="Segoe UI"
         Background="{StaticResource BackgroundBrush}"
         Foreground="{StaticResource TextBrush}">
+    <Window.Resources>
+        <Style x:Key="DarkContextMenuStyle" TargetType="ContextMenu">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDark}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+        </Style>
+
+        <Style x:Key="DarkContextMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Background" Value="#2A2A2A" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="MinWidth" Value="260" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                            <ControlTemplate TargetType="MenuItem">
+                                <Border x:Name="Border"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="#3C3C3C"
+                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#007ACC" />
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#4DA3FF" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -42,13 +89,26 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal"
-                            Margin="0,0,0,8">
+                <WrapPanel Margin="0,0,0,8">
+                    <Button Content="Refresh"
+                            Margin="0,0,8,0"
+                            Click="RefreshButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                <Setter Property="Background" Value="#008B8B" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Style>
+                        </Button.Style>
+                    </Button>
                     <Button Content="Select mklink"
                             Margin="0,0,8,0"
                             Click="SelectMklinkButton_Click" />
+                    <Button Content="Select missing"
+                            Margin="0,0,8,0"
+                            Click="SelectMissingButton_Click" />
                     <Button Content="Select real folder"
                             Margin="0,0,8,0"
                             Click="SelectRealFolderButton_Click" />
@@ -61,27 +121,80 @@
                     <Button Content="Invert select"
                             Margin="0,0,8,0"
                             Click="InvertSelectButton_Click" />
-                    <Button Content="Delete selected"
+                    <Button Content="Check selected"
                             Margin="0,0,8,0"
-                            Click="DeleteSelectedButton_Click" />
-                    <Button Content="Delete all"
-                            Click="DeleteAllButton_Click" />
+                            Click="CheckSelectedButton_Click" />
+                    <Button Content="Uncheck selected"
+                            Margin="0,0,8,0"
+                            Click="UncheckSelectedButton_Click" />
+                    <Button Content="Delete selected lines"
+                            Margin="0,0,8,0"
+                            Click="DeleteSelectedLinesButton_Click" />
+                    <Button Content="Delete all lines"
+                            Click="DeleteAllLinesButton_Click" />
+                </WrapPanel>
+
+                <StackPanel Grid.Row="2"
+                            Margin="0,10,0,0"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <Button Content="Refresh"
+                            Margin="0,0,8,0"
+                            Click="RefreshButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                <Setter Property="Background" Value="#00B7B7" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Make mklink (Copy)"
+                            Margin="0,0,8,0"
+                            Click="MakeMklinkCopyButton_Click" />
+                    <Button Content="Make mklink (no copy)"
+                            Margin="0,0,8,0"
+                            Click="MakeMklinkNoCopyButton_Click" />
+                    <Button Content="Make reverse"
+                            Margin="0,0,8,0"
+                            Click="MakeReverseButton_Click" />
+                    <Button Content="Move to Destination"
+                            Margin="0,0,8,0"
+                            Click="MoveToDestinationButton_Click" />
+                    <Button Content="Close"
+                            Width="90"
+                            Click="CloseButton_Click" />
                 </StackPanel>
 
                 <DataGrid x:Name="CheckGrid"
                           Grid.Row="1"
-                          ItemsSource="{Binding Entries}"
+                          ItemsSource="{Binding EntriesView}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
                           CanUserDeleteRows="False"
                           IsReadOnly="False"
                           HeadersVisibility="Column"
                           SelectionMode="Extended"
+                          SelectionUnit="FullRow"
                           GridLinesVisibility="All"
                           HorizontalGridLinesBrush="White"
                           VerticalGridLinesBrush="White"
                           BorderBrush="White"
-                          BorderThickness="1">
+                          BorderThickness="1"
+                          PreviewKeyDown="CheckGrid_PreviewKeyDown"
+                          PreviewMouseRightButtonDown="CheckGrid_PreviewMouseRightButtonDown">
+                    <DataGrid.ContextMenu>
+                        <ContextMenu Style="{StaticResource DarkContextMenuStyle}">
+                            <ContextMenu.Resources>
+                                <Style TargetType="MenuItem" BasedOn="{StaticResource DarkContextMenuItemStyle}" />
+                            </ContextMenu.Resources>
+                            <MenuItem Header="Copy selected normalize input"
+                                      Click="CopySelectedNormalizeInput_Click" />
+                            <MenuItem Header="Copy selected output"
+                                      Click="CopySelectedOutput_Click" />
+                            <MenuItem Header="Copy selected &quot;Already mklink to&quot;"
+                                      Click="CopySelectedAlreadyMklinkTo_Click" />
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
@@ -93,17 +206,32 @@
                         </Style>
                     </DataGrid.RowStyle>
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Header="Sel"
-                                                Width="54"
-                                                Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <DataGridTemplateColumn Header="Sel"
+                                                Width="54">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <DataGridTextColumn Header="Normalize Input"
                                             Width="2*"
-                                            Binding="{Binding NormalizedInput}" />
+                                            Binding="{Binding NormalizedInput, Mode=OneWay}" />
                         <DataGridTextColumn Header="Output"
                                             Width="2*"
-                                            Binding="{Binding OutputPath}" />
+                                            Binding="{Binding OutputPath, Mode=OneWay}" />
                         <DataGridTemplateColumn Header="Status"
                                                 Width="160">
+                            <DataGridTemplateColumn.HeaderTemplate>
+                                <DataTemplate>
+                                    <Button Content="Status"
+                                            Padding="4,0"
+                                            MinWidth="72"
+                                            Click="StatusHeaderButton_Click" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.HeaderTemplate>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Status}"
@@ -111,18 +239,24 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Already mklink to"
+                                            Width="2*"
+                                            Binding="{Binding AlreadyMklinkTo, Mode=OneWay}" />
+                        <DataGridCheckBoxColumn Width="130"
+                                                IsReadOnly="True"
+                                                Binding="{Binding DestinationCheck, Mode=OneWay}">
+                            <DataGridCheckBoxColumn.HeaderTemplate>
+                                <DataTemplate>
+                                    <Button Content="Destination check"
+                                            Padding="4,0"
+                                            MinWidth="116"
+                                            Click="DestinationHeaderButton_Click" />
+                                </DataTemplate>
+                            </DataGridCheckBoxColumn.HeaderTemplate>
+                        </DataGridCheckBoxColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
         </Border>
-
-        <StackPanel Grid.Row="2"
-                    Margin="0,10,0,0"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right">
-            <Button Content="Close"
-                    Width="90"
-                    Click="CloseButton_Click" />
-        </StackPanel>
     </Grid>
 </Window>

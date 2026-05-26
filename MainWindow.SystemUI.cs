@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
+using System.Linq;
+using Microsoft.Win32.SafeHandles;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Data;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Forms = System.Windows.Forms;
 using MKLink.Models;
@@ -23,6 +27,7 @@ namespace MKLink
         private readonly object _launchedProcessLock = new object();
         private readonly List<Process> _launchedProcesses = new List<Process>();
         private bool _isClosing;
+        private bool _isSyncingLinkedSelection;
 
         public MainWindow()
         {
@@ -75,6 +80,55 @@ namespace MKLink
                 tab.SetSelectedRootFolder(pickedPath);
                 tab.ApplyTargetCommand.Execute(null);
             }
+        }
+
+        private void EditOutputButton_Click(object sender, RoutedEventArgs e)
+        {
+            var element = sender as FrameworkElement;
+            var item = element != null ? element.DataContext as PathItem : null;
+            var grid = FindParent<DataGrid>(element);
+            if (item == null)
+            {
+                return;
+            }
+
+            string initialPath = item.EditOutputPath;
+            if (string.IsNullOrWhiteSpace(initialPath))
+            {
+                initialPath = item.MappedTarget;
+            }
+
+            if (!PickFolderVista("Chọn thư mục output đã chỉnh", initialPath, out var pickedPath))
+            {
+                return;
+            }
+
+            if (_viewModel != null)
+            {
+                _viewModel.CaptureUndoSnapshot();
+            }
+
+            item.EditOutputPath = pickedPath;
+            RefreshEditOutputGridFilter(grid);
+        }
+
+        private void RestoreDefaultOutputButton_Click(object sender, RoutedEventArgs e)
+        {
+            var element = sender as FrameworkElement;
+            var item = element != null ? element.DataContext as PathItem : null;
+            var grid = FindParent<DataGrid>(element);
+            if (item == null)
+            {
+                return;
+            }
+
+            if (_viewModel != null)
+            {
+                _viewModel.CaptureUndoSnapshot();
+            }
+
+            item.EditOutputPath = string.Empty;
+            RefreshEditOutputGridFilter(grid);
         }
 
         private void SaveMarkdownButton_Click(object sender, RoutedEventArgs e)
@@ -157,12 +211,34 @@ namespace MKLink
                 return;
             }
 
-            _checkMklinkWindow = new CheckMklinkWindow(BuildMklinkCheckEntries, DeleteCopyRowsBySourceIndices)
+            _checkMklinkWindow = new CheckMklinkWindow(
+                BuildMklinkCheckEntries,
+                DeleteCopyRowsBySourceIndices,
+                RunCopyDeleteMklinkFromCheckWindow,
+                RunDeleteMklinkFromCheckWindow,
+                MakeReverseFromCheckWindow,
+                MoveToDestinationFromCheckWindow)
             {
                 Owner = this
             };
             _checkMklinkWindow.Closed += CheckMklinkWindow_Closed;
             _checkMklinkWindow.Show();
+        }
+
+        private void DonateAuthorButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://tinyurl.com/gmtpcdonate",
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Open link failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void CopyAndMklinkButton_Click(object sender, RoutedEventArgs e)
@@ -173,11 +249,31 @@ namespace MKLink
                 _viewModel != null ? _viewModel.MklinkTab.ScriptResult : string.Empty);
         }
 
+        private void RunCopyDeleteMklinkFromCheckWindow(List<MklinkCheckEntry> selectedEntries)
+        {
+            RunCopyDeleteMklinkForEntries(selectedEntries, RefreshCheckWindowStatus);
+        }
+
         private void DeleteAndMklinkButton_Click(object sender, RoutedEventArgs e)
         {
             RunElevatedCommandSequence(
                 _viewModel != null ? _viewModel.DeleteTab.ScriptResult : string.Empty,
                 _viewModel != null ? _viewModel.MklinkTab.ScriptResult : string.Empty);
+        }
+
+        private void RunDeleteMklinkFromCheckWindow(List<MklinkCheckEntry> selectedEntries)
+        {
+            RunDeleteMklinkForEntries(selectedEntries, RefreshCheckWindowStatus);
+        }
+
+        private void MakeReverseFromCheckWindow(List<MklinkCheckEntry> selectedEntries)
+        {
+            RunReverseForEntries(selectedEntries, RefreshCheckWindowStatus);
+        }
+
+        private void MoveToDestinationFromCheckWindow(List<MklinkCheckEntry> selectedEntries)
+        {
+            RunMoveToDestinationForEntries(selectedEntries, RefreshCheckWindowStatus);
         }
 
         private void CopyResultButton_Click(object sender, RoutedEventArgs e)
@@ -235,6 +331,249 @@ namespace MKLink
             Clipboard.SetText(string.Join(Environment.NewLine, lines));
         }
 
+        private void InputGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isSyncingLinkedSelection)
+            {
+                return;
+            }
+
+            var sourceGrid = sender as DataGrid;
+            if (sourceGrid == null)
+            {
+                return;
+            }
+
+            var selectedItem = sourceGrid.SelectedItem as PathItem;
+            if (selectedItem == null || selectedItem.IsPlaceholder)
+            {
+                return;
+            }
+
+            SyncLinkedGridsSelection(sourceGrid, selectedItem);
+        }
+
+        private void EditOutputGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            var grid = sender as DataGrid;
+            if (grid == null)
+            {
+                return;
+            }
+
+            var tab = grid.DataContext as PathTabViewModel;
+            if (tab == null || tab.SourceItems == null)
+            {
+                return;
+            }
+
+            if (grid.ItemsSource is ListCollectionView existingView &&
+                ReferenceEquals(existingView.SourceCollection, tab.SourceItems))
+            {
+                existingView.Filter = item => FilterEditOutputRow(tab, item as PathItem);
+                existingView.Refresh();
+                return;
+            }
+
+            var view = new ListCollectionView(tab.SourceItems);
+            view.Filter = item => FilterEditOutputRow(tab, item as PathItem);
+            grid.ItemsSource = view;
+        }
+
+        private void EditOutputFilterHeaderButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as FrameworkElement;
+            var grid = FindParent<DataGrid>(button);
+            if (grid == null)
+            {
+                return;
+            }
+
+            var tab = grid.DataContext as PathTabViewModel;
+            if (tab == null)
+            {
+                return;
+            }
+
+            ContextMenu menu = BuildEditOutputFilterMenu(grid, tab);
+            menu.PlacementTarget = button;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.IsOpen = true;
+        }
+
+        private ContextMenu BuildEditOutputFilterMenu(DataGrid grid, PathTabViewModel tab)
+        {
+            var menu = new ContextMenu();
+            var menuStyle = TryFindResource("DarkContextMenuStyle") as Style;
+            if (menuStyle != null)
+            {
+                menu.Style = menuStyle;
+            }
+
+            menu.Items.Add(CreateEditOutputFilterMenuItem("All", EditOutputFilterKind.All, grid, tab));
+            menu.Items.Add(CreateEditOutputFilterMenuItem("Default", EditOutputFilterKind.Default, grid, tab));
+            menu.Items.Add(CreateEditOutputFilterMenuItem("Edited", EditOutputFilterKind.Edited, grid, tab));
+            return menu;
+        }
+
+        private MenuItem CreateEditOutputFilterMenuItem(
+            string header,
+            EditOutputFilterKind filterKind,
+            DataGrid grid,
+            PathTabViewModel tab)
+        {
+            var menuItem = new MenuItem { Header = header };
+            var menuItemStyle = TryFindResource("DarkContextMenuItemStyle") as Style;
+            if (menuItemStyle != null)
+            {
+                menuItem.Style = menuItemStyle;
+            }
+
+            menuItem.Click += delegate
+            {
+                if (tab != null)
+                {
+                    tab.EditOutputFilterKind = filterKind;
+                }
+
+                RefreshEditOutputGridFilter(grid);
+            };
+            return menuItem;
+        }
+
+        private void RefreshEditOutputGridFilter(DataGrid grid)
+        {
+            if (grid == null || grid.ItemsSource == null)
+            {
+                return;
+            }
+
+            var view = grid.ItemsSource as ICollectionView;
+            if (view != null)
+            {
+                view.Refresh();
+            }
+        }
+
+        private void SyncLinkedGridsSelection(DataGrid sourceGrid, PathItem selectedItem)
+        {
+            if (sourceGrid == null || selectedItem == null)
+            {
+                return;
+            }
+
+            List<DataGrid> linkedGrids = FindLinkedDataGrids(sourceGrid);
+            if (linkedGrids.Count == 0)
+            {
+                return;
+            }
+
+            _isSyncingLinkedSelection = true;
+            try
+            {
+                for (int i = 0; i < linkedGrids.Count; i++)
+                {
+                    DataGrid targetGrid = linkedGrids[i];
+                    if (targetGrid == null || ReferenceEquals(targetGrid, sourceGrid))
+                    {
+                        continue;
+                    }
+
+                    targetGrid.ScrollIntoView(selectedItem);
+                    targetGrid.SelectedItem = selectedItem;
+                }
+            }
+            finally
+            {
+                _isSyncingLinkedSelection = false;
+            }
+        }
+
+        private List<DataGrid> FindLinkedDataGrids(DataGrid inputGrid)
+        {
+            var result = new List<DataGrid>();
+            if (inputGrid == null)
+            {
+                return result;
+            }
+
+            object inputDataContext = inputGrid.DataContext;
+            object inputItemsSource = GetLinkedSourceCollection(inputGrid.ItemsSource);
+            IEnumerable<DataGrid> dataGrids = FindVisualChildren<DataGrid>(this);
+            foreach (DataGrid grid in dataGrids)
+            {
+                if (grid == null)
+                {
+                    continue;
+                }
+
+                if (!ReferenceEquals(grid.DataContext, inputDataContext))
+                {
+                    continue;
+                }
+
+                object gridItemsSource = GetLinkedSourceCollection(grid.ItemsSource);
+                if (ReferenceEquals(gridItemsSource, inputItemsSource))
+                {
+                    result.Add(grid);
+                }
+            }
+
+            return result;
+        }
+
+        private static object GetLinkedSourceCollection(object itemsSource)
+        {
+            var collectionView = itemsSource as CollectionView;
+            if (collectionView != null)
+            {
+                return collectionView.SourceCollection;
+            }
+
+            return itemsSource;
+        }
+
+        private static bool FilterEditOutputRow(PathTabViewModel tab, PathItem item)
+        {
+            if (tab == null || item == null || item.IsPlaceholder || item.IsEmpty)
+            {
+                return false;
+            }
+
+            switch (tab.EditOutputFilterKind)
+            {
+                case EditOutputFilterKind.Default:
+                    return !item.IsEdited;
+                case EditOutputFilterKind.Edited:
+                    return item.IsEdited;
+                default:
+                    return true;
+            }
+        }
+
+        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null)
+            {
+                yield break;
+            }
+
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T)
+                {
+                    yield return (T)child;
+                }
+
+                foreach (T descendant in FindVisualChildren<T>(child))
+                {
+                    yield return descendant;
+                }
+            }
+        }
+
         private IEnumerable<MklinkCheckEntry> BuildMklinkCheckEntries()
         {
             var entries = new List<MklinkCheckEntry>();
@@ -251,7 +590,7 @@ namespace MKLink
                     continue;
                 }
 
-                AddCheckEntry(entries, i, item.NormalizedInput, item.MappedTarget);
+                AddCheckEntry(entries, i, item.NormalizedInput, item.EffectiveOutputPath);
             }
 
             return entries;
@@ -268,6 +607,8 @@ namespace MKLink
             string outputPath = CleanPathForCheck(outputRaw);
             bool exists = false;
             bool isLink = false;
+            bool destinationCheck = false;
+            string alreadyMklinkTo = string.Empty;
             string status = "Missing";
 
             try
@@ -284,21 +625,52 @@ namespace MKLink
                     FileAttributes attributes = File.GetAttributes(expanded);
                     isLink = (attributes & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
                     status = isLink ? "MKLINK" : "Real folder";
+                    if (isLink)
+                    {
+                        TryResolveLinkTarget(expanded, out alreadyMklinkTo);
+                    }
                 }
+
+                string expandedOutput = Environment.ExpandEnvironmentVariables(outputPath);
+                if (!string.IsNullOrWhiteSpace(expandedOutput))
+                {
+                    expandedOutput = expandedOutput.Trim();
+                }
+
+                destinationCheck = !string.IsNullOrWhiteSpace(expandedOutput) && Directory.Exists(expandedOutput);
             }
             catch
             {
                 status = "Invalid path";
             }
 
-            entries.Add(new MklinkCheckEntry(sourceIndex, normalizedInput, outputPath, exists, isLink, status));
+            entries.Add(new MklinkCheckEntry(sourceIndex, normalizedInput, outputPath, exists, isLink, destinationCheck, alreadyMklinkTo, status));
         }
 
         private void CopyTab_DataChanged_ForCheckWindow(object sender, EventArgs e)
         {
+            RefreshEditOutputViews();
             if (_checkMklinkWindow != null)
             {
                 _checkMklinkWindow.RefreshFromSource();
+            }
+        }
+
+        private void RefreshEditOutputViews()
+        {
+            IEnumerable<DataGrid> dataGrids = FindVisualChildren<DataGrid>(this);
+            foreach (DataGrid grid in dataGrids)
+            {
+                if (grid == null || grid.ItemsSource == null)
+                {
+                    continue;
+                }
+
+                ICollectionView view = grid.ItemsSource as ICollectionView;
+                if (view != null)
+                {
+                    view.Refresh();
+                }
             }
         }
 
@@ -350,6 +722,341 @@ namespace MKLink
             }
 
             return value.Trim().Trim('"');
+        }
+
+        private static bool TryResolveLinkTarget(string path, out string resolvedPath)
+        {
+            resolvedPath = string.Empty;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return false;
+            }
+
+            try
+            {
+                using (SafeFileHandle handle = CreateFile(
+                    path,
+                    0,
+                    FileShare.ReadWrite | FileShare.Delete,
+                    IntPtr.Zero,
+                    FileMode.Open,
+                    FileFlagsBackupsSemantics,
+                    IntPtr.Zero))
+                {
+                    if (handle == null || handle.IsInvalid)
+                    {
+                        return false;
+                    }
+
+                    var buffer = new StringBuilder(512);
+                    int result = GetFinalPathNameByHandle(handle, buffer, buffer.Capacity, 0);
+                    if (result <= 0)
+                    {
+                        return false;
+                    }
+
+                    if (result >= buffer.Capacity)
+                    {
+                        buffer = new StringBuilder(result + 1);
+                        result = GetFinalPathNameByHandle(handle, buffer, buffer.Capacity, 0);
+                        if (result <= 0)
+                        {
+                            return false;
+                        }
+                    }
+
+                    resolvedPath = NormalizeDevicePath(buffer.ToString());
+                    return resolvedPath.Length > 0;
+                }
+            }
+            catch
+            {
+                resolvedPath = string.Empty;
+                return false;
+            }
+        }
+
+        private static string NormalizeDevicePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return string.Empty;
+            }
+
+            string result = path.Trim();
+            if (result.StartsWith(@"\\?\UNC\", StringComparison.OrdinalIgnoreCase))
+            {
+                return @"\\" + result.Substring(8);
+            }
+
+            if (result.StartsWith(@"\\?\", StringComparison.OrdinalIgnoreCase))
+            {
+                return result.Substring(4);
+            }
+
+            return result;
+        }
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern SafeFileHandle CreateFile(
+            string lpFileName,
+            int dwDesiredAccess,
+            FileShare dwShareMode,
+            IntPtr lpSecurityAttributes,
+            FileMode dwCreationDisposition,
+            int dwFlagsAndAttributes,
+            IntPtr hTemplateFile);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern int GetFinalPathNameByHandle(
+            SafeFileHandle hFile,
+            StringBuilder lpszFilePath,
+            int cchFilePath,
+            int dwFlags);
+
+        private const int FileFlagsBackupsSemantics = 0x02000000;
+
+        private void RunCopyDeleteMklinkForEntries(List<MklinkCheckEntry> entries, Action onProcessExited)
+        {
+            string copyScript = BuildCopyScript(entries);
+            string deleteScript = BuildDeleteInputScript(entries);
+            string mklinkScript = BuildMklinkScript(entries);
+            RunElevatedCommandSequence(
+                new[] { "COPY", "DELETE", "MKLINK D" },
+                onProcessExited,
+                copyScript,
+                deleteScript,
+                mklinkScript);
+        }
+
+        private void RunDeleteMklinkForEntries(List<MklinkCheckEntry> entries, Action onProcessExited)
+        {
+            string deleteScript = BuildDeleteInputScript(entries);
+            string mklinkScript = BuildMklinkScript(entries);
+            RunElevatedCommandSequence(
+                new[] { "DELETE", "MKLINK D" },
+                onProcessExited,
+                deleteScript,
+                mklinkScript);
+        }
+
+        private void RunReverseForEntries(List<MklinkCheckEntry> entries, Action onProcessExited)
+        {
+            string deleteReverseScript = BuildDeleteInputScript(entries);
+            string copyReverseScript = BuildReverseCopyScript(entries);
+            RunElevatedCommandSequence(
+                new[] { "DELETE REVERSE", "COPY REVERSE" },
+                onProcessExited,
+                deleteReverseScript,
+                copyReverseScript);
+        }
+
+        private void RunMoveToDestinationForEntries(List<MklinkCheckEntry> entries, Action onProcessExited)
+        {
+            string moveScript = BuildMoveToDestinationScript(entries);
+            RunElevatedCommandSequence(
+                new[] { "MOVE TO DESTINATION" },
+                onProcessExited,
+                moveScript);
+        }
+
+        private static string BuildCopyScript(IEnumerable<MklinkCheckEntry> entries)
+        {
+            var builder = new StringBuilder();
+            if (entries == null)
+            {
+                return string.Empty;
+            }
+
+            foreach (MklinkCheckEntry entry in entries)
+            {
+                if (!IsUsableEntry(entry) || string.IsNullOrWhiteSpace(entry.OutputPath))
+                {
+                    continue;
+                }
+
+                AppendCommandBlock(builder,
+                    "if not exist " + QuoteCommand(entry.OutputPath) + " mkdir " + QuoteCommand(entry.OutputPath),
+                    "xcopy " + QuoteCommand(entry.NormalizedInput) + " " + QuoteCommand(entry.OutputPath) + " /E /I /Y");
+            }
+
+            return builder.ToString();
+        }
+
+        private static string BuildDeleteInputScript(IEnumerable<MklinkCheckEntry> entries)
+        {
+            var builder = new StringBuilder();
+            if (entries == null)
+            {
+                return string.Empty;
+            }
+
+            foreach (MklinkCheckEntry entry in entries)
+            {
+                if (!IsUsableEntry(entry))
+                {
+                    continue;
+                }
+
+                AppendCommand(builder, "rmdir /s /q " + QuoteCommand(entry.NormalizedInput));
+            }
+
+            return builder.ToString();
+        }
+
+        private static string BuildMklinkScript(IEnumerable<MklinkCheckEntry> entries)
+        {
+            var builder = new StringBuilder();
+            if (entries == null)
+            {
+                return string.Empty;
+            }
+
+            foreach (MklinkCheckEntry entry in entries)
+            {
+                if (!IsUsableEntry(entry) || string.IsNullOrWhiteSpace(entry.OutputPath))
+                {
+                    continue;
+                }
+
+                AppendCommand(builder, "mklink /D " + QuoteCommand(entry.NormalizedInput) + " " + QuoteCommand(entry.OutputPath));
+            }
+
+            return builder.ToString();
+        }
+
+        private static string BuildReverseCopyScript(IEnumerable<MklinkCheckEntry> entries)
+        {
+            var builder = new StringBuilder();
+            if (entries == null)
+            {
+                return string.Empty;
+            }
+
+            foreach (MklinkCheckEntry entry in entries)
+            {
+                if (!IsUsableEntry(entry) || string.IsNullOrWhiteSpace(entry.OutputPath))
+                {
+                    continue;
+                }
+
+                AppendCommand(builder, "xcopy " + QuoteCommand(entry.OutputPath) + " " + QuoteCommand(entry.NormalizedInput) + " /E /I /Y");
+            }
+
+            return builder.ToString();
+        }
+
+        private static string BuildMoveToDestinationScript(IEnumerable<MklinkCheckEntry> entries)
+        {
+            var builder = new StringBuilder();
+            if (entries == null)
+            {
+                return string.Empty;
+            }
+
+            foreach (MklinkCheckEntry entry in entries)
+            {
+                if (!CanMoveToDestination(entry))
+                {
+                    continue;
+                }
+
+                AppendCommandBlock(builder,
+                    "if not exist " + QuoteCommand(entry.OutputPath) + " mkdir " + QuoteCommand(entry.OutputPath),
+                    "robocopy " + QuoteCommand(entry.AlreadyMklinkTo) + " " + QuoteCommand(entry.OutputPath) + " /E /MOVE /R:1 /W:1");
+                AppendCommand(builder, "if exist " + QuoteCommand(entry.AlreadyMklinkTo) + " rmdir /s /q " + QuoteCommand(entry.AlreadyMklinkTo));
+                AppendCommand(builder, "if exist " + QuoteCommand(entry.NormalizedInput) + " rmdir /s /q " + QuoteCommand(entry.NormalizedInput));
+                AppendCommand(builder, "mklink /D " + QuoteCommand(entry.NormalizedInput) + " " + QuoteCommand(entry.OutputPath));
+            }
+
+            return builder.ToString();
+        }
+
+        private static bool IsUsableEntry(MklinkCheckEntry entry)
+        {
+            return entry != null &&
+                   !string.IsNullOrWhiteSpace(entry.NormalizedInput) &&
+                   entry.Exists;
+        }
+
+        private static bool CanMoveToDestination(MklinkCheckEntry entry)
+        {
+            if (entry == null || !entry.IsLink)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(entry.OutputPath) || string.IsNullOrWhiteSpace(entry.AlreadyMklinkTo))
+            {
+                return false;
+            }
+
+            return !PathsMatch(entry.OutputPath, entry.AlreadyMklinkTo);
+        }
+
+        private static bool PathsMatch(string left, string right)
+        {
+            string normalizedLeft = NormalizeComparisonPath(left);
+            string normalizedRight = NormalizeComparisonPath(right);
+            return string.Equals(normalizedLeft, normalizedRight, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string NormalizeComparisonPath(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            string result = CleanPathForCheck(value);
+            result = Environment.ExpandEnvironmentVariables(result);
+            result = result.Trim();
+
+            try
+            {
+                result = Path.GetFullPath(result);
+            }
+            catch
+            {
+            }
+
+            return result.TrimEnd('\\', '/');
+        }
+
+        private static void AppendCommand(StringBuilder builder, string command)
+        {
+            if (builder.Length > 0)
+            {
+                builder.AppendLine();
+            }
+
+            builder.AppendLine(command);
+        }
+
+        private static void AppendCommandBlock(StringBuilder builder, string firstLine, string secondLine)
+        {
+            if (builder.Length > 0)
+            {
+                builder.AppendLine();
+            }
+
+            builder.AppendLine(firstLine);
+            builder.AppendLine(secondLine);
+        }
+
+        private static string QuoteCommand(string value)
+        {
+            return "\"" + (value ?? string.Empty) + "\"";
+        }
+
+        private void RefreshCheckWindowStatus()
+        {
+            if (_checkMklinkWindow == null)
+            {
+                return;
+            }
+
+            _checkMklinkWindow.RefreshFromSource();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -470,12 +1177,22 @@ namespace MKLink
 
         private void RunElevatedCommandSequence(params string[] scripts)
         {
+            RunElevatedCommandSequence(null, scripts);
+        }
+
+        private void RunElevatedCommandSequence(Action onProcessExited, params string[] scripts)
+        {
+            RunElevatedCommandSequence(null, onProcessExited, scripts);
+        }
+
+        private void RunElevatedCommandSequence(string[] stageNames, Action onProcessExited, params string[] scripts)
+        {
             if (_viewModel == null)
             {
                 return;
             }
 
-            string batchContent = BuildBatchContent(scripts);
+            string batchContent = BuildBatchContent(stageNames, scripts);
             if (string.IsNullOrWhiteSpace(batchContent))
             {
                 MessageBox.Show("Khong co lenh nao de chay.", "MKLink", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -498,7 +1215,7 @@ namespace MKLink
                 };
 
                 Process process = Process.Start(startInfo);
-                RegisterLaunchedProcess(process);
+                RegisterLaunchedProcess(process, onProcessExited);
             }
             catch (Win32Exception ex)
             {
@@ -510,7 +1227,7 @@ namespace MKLink
             }
         }
 
-        private static string BuildBatchContent(params string[] scripts)
+        private static string BuildBatchContent(string[] stageNames, params string[] scripts)
         {
             var builder = new StringBuilder();
             builder.AppendLine("@echo off");
@@ -527,7 +1244,11 @@ namespace MKLink
                 }
 
                 string stageName;
-                if (i == 0)
+                if (stageNames != null && i < stageNames.Length && !string.IsNullOrWhiteSpace(stageNames[i]))
+                {
+                    stageName = stageNames[i];
+                }
+                else if (i == 0)
                 {
                     stageName = "COPY";
                 }
@@ -580,11 +1301,26 @@ namespace MKLink
             return builder.ToString();
         }
 
-        private void RegisterLaunchedProcess(Process process)
+        private void RegisterLaunchedProcess(Process process, Action onProcessExited)
         {
             if (process == null)
             {
                 return;
+            }
+
+            if (onProcessExited != null)
+            {
+                process.EnableRaisingEvents = true;
+                process.Exited += delegate
+                {
+                    try
+                    {
+                        Dispatcher.BeginInvoke(new Action(onProcessExited), DispatcherPriority.Background);
+                    }
+                    catch
+                    {
+                    }
+                };
             }
 
             lock (_launchedProcessLock)

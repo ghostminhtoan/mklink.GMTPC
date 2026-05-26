@@ -75,6 +75,16 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="EditedTextBlockStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource WrapTextBlockStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsEdited}" Value="True">
+                    <Setter Property="Foreground" Value="Cyan" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="WrapTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource DarkTextBoxBaseStyle}">
             <Setter Property="TextWrapping" Value="NoWrap" />
             <Style.Triggers>
@@ -90,6 +100,51 @@
 
         <Style x:Key="WordWrapToggleStyle" TargetType="ToggleButton" BasedOn="{StaticResource DarkToggleButtonBaseStyle}">
             <Setter Property="Content" Value="Word Wrap" />
+        </Style>
+
+        <Style x:Key="DarkContextMenuStyle" TargetType="ContextMenu">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDark}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+        </Style>
+
+        <Style x:Key="DarkContextMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Background" Value="#2A2A2A" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="MinWidth" Value="220" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="#3C3C3C"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#007ACC" />
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#4DA3FF" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <DataTemplate x:Key="InputPanelTemplate">
@@ -108,7 +163,8 @@
                               AutoGenerateColumns="False"
                               CanUserAddRows="False"
                               CanUserDeleteRows="{Binding CanEditRows}"
-                              IsReadOnly="{Binding IsMirrorTab}">
+                              IsReadOnly="{Binding IsMirrorTab}"
+                              SelectionChanged="InputGrid_SelectionChanged">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow"
                                    BasedOn="{StaticResource DarkDataGridRowStyle}">
@@ -138,42 +194,144 @@
         </DataTemplate>
 
         <DataTemplate x:Key="OutputPanelTemplate">
-            <Border Margin="0,10,0,0"
-                    Style="{StaticResource PanelBorderStyle}">
-                <Grid Margin="10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="OUTPUT"
-                               Style="{StaticResource PanelTitleTextStyle}" />
-                    <DataGrid Grid.Row="1"
-                              Margin="0,8,0,0"
-                              ItemsSource="{Binding SourceItems}"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="False"
-                              CanUserDeleteRows="False"
-                              IsReadOnly="True">
-                        <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow"
-                                   BasedOn="{StaticResource DarkDataGridRowStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
-                                        <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGrid.RowStyle>
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Mapped Target"
-                                                Width="*"
-                                                Binding="{Binding MappedTarget, Mode=OneWay}"
-                                                ElementStyle="{StaticResource WrapTextBlockStyle}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </Border>
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Margin="0,0,5,0"
+                        Style="{StaticResource PanelBorderStyle}">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="OUTPUT"
+                                   Style="{StaticResource PanelTitleTextStyle}" />
+                        <DataGrid Grid.Row="1"
+                                  Margin="0,8,0,0"
+                                  ItemsSource="{Binding SourceItems}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  IsReadOnly="True"
+                                  SelectionChanged="InputGrid_SelectionChanged">
+                            <DataGrid.RowStyle>
+                                <Style TargetType="DataGridRow"
+                                       BasedOn="{StaticResource DarkDataGridRowStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
+                                            <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Mapped Target"
+                                                    Width="*"
+                                                    Binding="{Binding EffectiveOutputPath, Mode=OneWay}"
+                                                    ElementStyle="{StaticResource WrapTextBlockStyle}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="1"
+                        Margin="5,0,0,0"
+                        Style="{StaticResource PanelBorderStyle}">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="EDIT OUTPUT"
+                                   Style="{StaticResource PanelTitleTextStyle}" />
+                        <DataGrid Grid.Row="1"
+                                  Margin="0,8,0,0"
+                                  ItemsSource="{Binding SourceItems}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  IsReadOnly="True"
+                                  SelectionChanged="InputGrid_SelectionChanged"
+                                  Loaded="EditOutputGrid_Loaded">
+                            <DataGrid.RowStyle>
+                                <Style TargetType="DataGridRow"
+                                       BasedOn="{StaticResource DarkDataGridRowStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
+                                            <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Edit Output"
+                                                    Width="*"
+                                                    Binding="{Binding EffectiveOutputPath, Mode=OneWay}"
+                                                    ElementStyle="{StaticResource EditedTextBlockStyle}" />
+                                <DataGridTemplateColumn Header="Filter"
+                                                        Width="90">
+                                    <DataGridTemplateColumn.HeaderTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Filter"
+                                                    Padding="4,0"
+                                                    MinWidth="70"
+                                                    Click="EditOutputFilterHeaderButton_Click" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.HeaderTemplate>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding EditOutputStateText}"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource MutedTextBrush}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Actions"
+                                                        Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="Edit"
+                                                        Click="EditOutputButton_Click">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                                            <Setter Property="Width" Value="70" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                                <Button Content="Restore default"
+                                                        Click="RestoreDefaultOutputButton_Click">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                                            <Setter Property="Width" Value="120" />
+                                                            <Setter Property="Margin" Value="6,0,0,0" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="ResultPanelTemplate">
@@ -334,6 +492,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <ToolBar Grid.Row="0" Margin="0,0,0,8">
@@ -417,6 +576,7 @@
                                                   CanUserAddRows="False"
                                                   CanUserDeleteRows="False"
                                                   AllowDrop="True"
+                                                  SelectionChanged="InputGrid_SelectionChanged"
                                                   PreviewMouseLeftButtonDown="CopyInputGrid_PreviewMouseLeftButtonDown"
                                                   PreviewMouseMove="CopyInputGrid_PreviewMouseMove"
                                                   DragOver="CopyInputGrid_DragOver"
@@ -580,5 +740,44 @@
                 </Grid>
             </TabItem>
         </TabControl>
+
+        <Button Grid.Row="2"
+                Content="Ủng hộ tác giả Ma Minh Toàn 1993"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                MinWidth="320"
+                MinHeight="44"
+                Padding="18,8"
+                FontSize="15"
+                FontWeight="SemiBold"
+                Background="#228B22"
+                BorderBrush="#1B6F1B"
+                Foreground="White"
+                Cursor="Hand"
+                Click="DonateAuthorButton_Click">
+            <Button.Style>
+                <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                    <Setter Property="Background" Value="#228B22" />
+                    <Setter Property="BorderBrush" Value="#1B6F1B" />
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="MinWidth" Value="320" />
+                    <Setter Property="MinHeight" Value="44" />
+                    <Setter Property="Padding" Value="18,8" />
+                    <Setter Property="FontSize" Value="15" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#2E9E2E" />
+                            <Setter Property="BorderBrush" Value="#2E9E2E" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="#176B17" />
+                            <Setter Property="BorderBrush" Value="#176B17" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
     </Grid>
 </Window>

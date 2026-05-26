@@ -45,6 +45,13 @@ namespace MKLink
                 return;
             }
 
+            if (e.Key == Key.V)
+            {
+                PasteClipboardIntoCopyTab();
+                e.Handled = true;
+                return;
+            }
+
             if (e.Key == Key.Z && tab.UndoCommand != null && tab.UndoCommand.CanExecute(null))
             {
                 tab.UndoCommand.Execute(null);
@@ -106,20 +113,7 @@ namespace MKLink
                 return;
             }
 
-            var grid = sender as DataGrid;
-            var tab = grid != null ? grid.DataContext as PathTabViewModel : null;
-            if (tab == null)
-            {
-                return;
-            }
-
-            string pasteText = GetClipboardAsPlainText();
-            if (string.IsNullOrWhiteSpace(pasteText))
-            {
-                return;
-            }
-
-            tab.PasteSourceText(pasteText);
+            PasteClipboardIntoCopyTab();
             e.Handled = true;
         }
 
@@ -354,8 +348,7 @@ namespace MKLink
 
         private void CopyInputGrid_OnPasting(object sender, DataObjectPastingEventArgs e)
         {
-            var tab = CopyInputGrid.DataContext as PathTabViewModel;
-            if (tab == null)
+            if (_viewModel == null || _viewModel.CopyTab == null)
             {
                 return;
             }
@@ -366,8 +359,24 @@ namespace MKLink
                 return;
             }
 
-            tab.PasteSourceText(pasteText);
+            _viewModel.CopyTab.PasteSourceText(pasteText);
             e.CancelCommand();
+        }
+
+        private void PasteClipboardIntoCopyTab()
+        {
+            if (_viewModel == null || _viewModel.CopyTab == null)
+            {
+                return;
+            }
+
+            string pasteText = GetClipboardAsPlainText();
+            if (string.IsNullOrWhiteSpace(pasteText))
+            {
+                return;
+            }
+
+            _viewModel.CopyTab.PasteSourceText(pasteText);
         }
 
         private bool IsTextEditingContext(object originalSource)

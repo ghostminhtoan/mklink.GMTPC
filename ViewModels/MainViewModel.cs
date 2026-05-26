@@ -197,6 +197,7 @@ namespace MKLink.ViewModels
         private string _subfolderName;
         private string _rootTargetPath;
         private string _scriptResult;
+        private EditOutputFilterKind _editOutputFilterKind = EditOutputFilterKind.All;
         private bool _isRefreshing;
         private bool _placeholderRefreshPending;
 
@@ -316,6 +317,19 @@ namespace MKLink.ViewModels
             }
         }
 
+        public EditOutputFilterKind EditOutputFilterKind
+        {
+            get { return _editOutputFilterKind; }
+            set
+            {
+                if (_editOutputFilterKind != value)
+                {
+                    _editOutputFilterKind = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ICommand ApplyTargetCommand { get; private set; }
 
         public ICommand CopyScriptCommand { get; private set; }
@@ -400,7 +414,44 @@ namespace MKLink.ViewModels
                     : state.RootTargetPath;
 
                 SourceItems.Clear();
-                if (state.InputLines != null)
+                if (state.PathRows != null && state.PathRows.Count > 0)
+                {
+                    for (int i = 0; i < state.PathRows.Count; i++)
+                    {
+                        MarkdownPathRowState row = state.PathRows[i];
+                        if (row == null)
+                        {
+                            continue;
+                        }
+
+                        string originalInput = CleanInput(row.OriginalInput);
+                        if (string.IsNullOrWhiteSpace(originalInput))
+                        {
+                            continue;
+                        }
+
+                        var item = new PathItem
+                        {
+                            OriginalInput = originalInput
+                        };
+
+                        SourceItems.Add(item);
+                        RefreshItem(item);
+
+                        if (!string.IsNullOrWhiteSpace(row.NormalizedInput))
+                        {
+                            item.NormalizedInput = CleanInput(row.NormalizedInput);
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(row.OutputPath))
+                        {
+                            item.MappedTarget = CleanInput(row.OutputPath);
+                        }
+
+                        item.EditOutputPath = CleanInput(row.EditOutputPath);
+                    }
+                }
+                else if (state.InputLines != null)
                 {
                     for (int i = 0; i < state.InputLines.Count; i++)
                     {
@@ -419,6 +470,34 @@ namespace MKLink.ViewModels
 
             EnsureInputPlaceholder();
             RefreshAll();
+            if (state.PathRows != null && state.PathRows.Count > 0)
+            {
+                _isRefreshing = true;
+                try
+                {
+                    int limit = state.PathRows.Count < SourceItems.Count ? state.PathRows.Count : SourceItems.Count;
+                    for (int i = 0; i < limit; i++)
+                    {
+                        MarkdownPathRowState row = state.PathRows[i];
+                        PathItem item = SourceItems[i];
+                        if (row == null || item == null || item.IsPlaceholder)
+                        {
+                            continue;
+                        }
+
+                        item.NormalizedInput = CleanInput(row.NormalizedInput);
+                        item.MappedTarget = CleanInput(row.OutputPath);
+                        item.EditOutputPath = CleanInput(row.EditOutputPath);
+                    }
+                }
+                finally
+                {
+                    _isRefreshing = false;
+                }
+
+                RefreshScript();
+            }
+
             OnPropertyChanged("SelectedRootFolder");
             OnPropertyChanged("SubfolderName");
             OnPropertyChanged("RootTargetPath");
@@ -502,7 +581,8 @@ namespace MKLink.ViewModels
                 SelectedRootFolder = _selectedRootFolder,
                 SubfolderName = _subfolderName,
                 RootTargetPath = _rootTargetPath,
-                InputLines = new List<string>()
+                InputLines = new List<string>(),
+                PathRows = new List<MarkdownPathRowState>()
             };
 
             for (int i = 0; i < SourceItems.Count; i++)
@@ -511,6 +591,13 @@ namespace MKLink.ViewModels
                 if (item != null && !item.IsPlaceholder && !string.IsNullOrWhiteSpace(item.OriginalInput))
                 {
                     state.InputLines.Add(item.OriginalInput);
+                    state.PathRows.Add(new MarkdownPathRowState
+                    {
+                        OriginalInput = item.OriginalInput,
+                        NormalizedInput = item.NormalizedInput,
+                        OutputPath = item.MappedTarget,
+                        EditOutputPath = item.EditOutputPath
+                    });
                 }
             }
 
@@ -770,10 +857,15 @@ namespace MKLink.ViewModels
 
             if (e.PropertyName == "NormalizedInput" ||
                 e.PropertyName == "MappedTarget" ||
+                e.PropertyName == "EditOutputPath" ||
                 e.PropertyName == "IsValid" ||
                 e.PropertyName == "IsPlaceholder")
             {
                 RefreshScript();
+                if (e.PropertyName == "EditOutputPath")
+                {
+                    RaiseDataChanged();
+                }
             }
         }
 
@@ -1104,7 +1196,7 @@ namespace MKLink.ViewModels
 
             if (_scriptMode != ScriptMode.Delete &&
                 _scriptMode != ScriptMode.ReverseDelete &&
-                string.IsNullOrWhiteSpace(item.MappedTarget))
+                string.IsNullOrWhiteSpace(item.EffectiveOutputPath))
             {
                 return false;
             }
@@ -1116,14 +1208,15 @@ namespace MKLink.ViewModels
         {
             if (_scriptMode == ScriptMode.Copy)
             {
-                string command = "if not exist " + Quote(item.MappedTarget) + " mkdir " + Quote(item.MappedTarget) + Environment.NewLine +
-                                 "xcopy " + Quote(item.NormalizedInput) + " " + Quote(item.MappedTarget) + " /E /I /Y";
+                string outputPath = item.EffectiveOutputPath;
+                string command = "if not exist " + Quote(outputPath) + " mkdir " + Quote(outputPath) + Environment.NewLine +
+                                 "xcopy " + Quote(item.NormalizedInput) + " " + Quote(outputPath) + " /E /I /Y";
                 return command;
             }
 
             if (_scriptMode == ScriptMode.ReverseCopy)
             {
-                return "xcopy " + Quote(item.MappedTarget) + " " + Quote(item.NormalizedInput) + " /E /I /Y";
+                return "xcopy " + Quote(item.EffectiveOutputPath) + " " + Quote(item.NormalizedInput) + " /E /I /Y";
             }
 
             if (_scriptMode == ScriptMode.Delete)
@@ -1139,7 +1232,7 @@ namespace MKLink.ViewModels
             }
 
             // MKLINK D lien ket voi Copy!A va Copy!B.
-            return "mklink /D " + Quote(item.NormalizedInput) + " " + Quote(item.MappedTarget);
+            return "mklink /D " + Quote(item.NormalizedInput) + " " + Quote(item.EffectiveOutputPath);
         }
 
         private string Quote(string value)
@@ -1208,6 +1301,13 @@ namespace MKLink.ViewModels
         MklinkD,
         ReverseCopy,
         ReverseDelete
+    }
+
+    public enum EditOutputFilterKind
+    {
+        All,
+        Default,
+        Edited
     }
 
     public class MappingInfo
@@ -1286,6 +1386,19 @@ namespace MKLink.ViewModels
         public bool IsWordWrapEnabled { get; set; }
 
         public List<string> InputLines { get; set; }
+
+        public List<MarkdownPathRowState> PathRows { get; set; }
+    }
+
+    public class MarkdownPathRowState
+    {
+        public string OriginalInput { get; set; }
+
+        public string NormalizedInput { get; set; }
+
+        public string OutputPath { get; set; }
+
+        public string EditOutputPath { get; set; }
     }
 
     public static class MarkdownStateSerializer
@@ -1307,7 +1420,7 @@ namespace MKLink.ViewModels
             builder.AppendLine("- RootTargetPath: " + viewModel.CopyTab.RootTargetPath);
             builder.AppendLine("- IsWordWrapEnabled: " + viewModel.IsWordWrapEnabled);
             builder.AppendLine();
-            builder.AppendLine("## COPY INPUT");
+            builder.AppendLine("## COPY ROWS");
             builder.AppendLine("```paths");
 
             for (int i = 0; i < viewModel.CopyTab.SourceItems.Count; i++)
@@ -1315,7 +1428,13 @@ namespace MKLink.ViewModels
                 PathItem item = viewModel.CopyTab.SourceItems[i];
                 if (item != null && !item.IsPlaceholder && !string.IsNullOrWhiteSpace(item.OriginalInput))
                 {
-                    builder.AppendLine(item.OriginalInput);
+                    builder.AppendLine(string.Join("\t", new[]
+                    {
+                        item.OriginalInput ?? string.Empty,
+                        item.NormalizedInput ?? string.Empty,
+                        item.MappedTarget ?? string.Empty,
+                        item.EditOutputPath ?? string.Empty
+                    }));
                 }
             }
 
@@ -1327,7 +1446,8 @@ namespace MKLink.ViewModels
         {
             var state = new MarkdownDocumentState
             {
-                InputLines = new List<string>()
+                InputLines = new List<string>(),
+                PathRows = new List<MarkdownPathRowState>()
             };
 
             if (string.IsNullOrWhiteSpace(markdown))
@@ -1339,6 +1459,7 @@ namespace MKLink.ViewModels
             {
                 string line;
                 bool inCodeBlock = false;
+                bool inRowBlock = false;
                 while ((line = reader.ReadLine()) != null)
                 {
                     string trimmed = line.Trim();
@@ -1366,6 +1487,12 @@ namespace MKLink.ViewModels
                         continue;
                     }
 
+                    if (trimmed == "## COPY ROWS")
+                    {
+                        inRowBlock = true;
+                        continue;
+                    }
+
                     if (trimmed == "```paths")
                     {
                         inCodeBlock = true;
@@ -1382,9 +1509,28 @@ namespace MKLink.ViewModels
 
                     if (inCodeBlock && trimmed.Length > 0)
                     {
-                        state.InputLines.Add(line);
+                        if (inRowBlock)
+                        {
+                            string[] parts = line.Split(new[] { '\t' }, 4);
+                            state.PathRows.Add(new MarkdownPathRowState
+                            {
+                                OriginalInput = parts.Length > 0 ? parts[0] : string.Empty,
+                                NormalizedInput = parts.Length > 1 ? parts[1] : string.Empty,
+                                OutputPath = parts.Length > 2 ? parts[2] : string.Empty,
+                                EditOutputPath = parts.Length > 3 ? parts[3] : string.Empty
+                            });
+                        }
+                        else
+                        {
+                            state.InputLines.Add(line);
+                        }
                     }
                 }
+            }
+
+            if (state.PathRows == null)
+            {
+                state.PathRows = new List<MarkdownPathRowState>();
             }
 
             return state;
