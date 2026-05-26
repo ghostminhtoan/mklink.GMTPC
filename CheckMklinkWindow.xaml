@@ -256,6 +256,18 @@
                                 </DataTemplate>
                             </DataGridCheckBoxColumn.HeaderTemplate>
                         </DataGridCheckBoxColumn>
+                        <DataGridCheckBoxColumn Width="170"
+                                                IsReadOnly="True"
+                                                Binding="{Binding IsMatched, Mode=OneWay}">
+                            <DataGridCheckBoxColumn.HeaderTemplate>
+                                <DataTemplate>
+                                    <Button Content="Match Output/Link"
+                                            Padding="4,0"
+                                            MinWidth="140"
+                                            Click="MatchHeaderButton_Click" />
+                                </DataTemplate>
+                            </DataGridCheckBoxColumn.HeaderTemplate>
+                        </DataGridCheckBoxColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

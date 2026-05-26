@@ -59,6 +59,11 @@ namespace MKLink
             CheckMklinkTab.Content = _checkMklinkWindow;
 
             _viewModel.CopyTab.DataChanged += CopyTab_DataChanged_ForCheckWindow;
+
+            if (SearchBox != null)
+            {
+                _checkMklinkWindow.UpdateSearchFilter(SearchBox.Text);
+            }
         }
 
         private static string GetBuildTimeText()
@@ -549,6 +554,11 @@ namespace MKLink
             }
 
             RefreshEditOutputViews();
+
+            if (_checkMklinkWindow != null)
+            {
+                _checkMklinkWindow.UpdateSearchFilter(searchText);
+            }
         }
 
         private bool FilterEditOutputRow(PathTabViewModel tab, PathItem item)

@@ -26,6 +26,8 @@ namespace MKLink
         private readonly Action<List<MklinkCheckEntry>> _moveToDestinationAction;
         private StatusFilterKind _statusFilter = StatusFilterKind.All;
         private DestinationFilterKind _destinationFilter = DestinationFilterKind.All;
+        private MatchFilterKind _matchFilter = MatchFilterKind.All;
+        private string _searchKeyword = string.Empty;
         private List<MklinkCheckEntry> _contextMenuCopySnapshot = new List<MklinkCheckEntry>();
 
         public CheckMklinkWindow(
@@ -189,6 +191,26 @@ namespace MKLink
             }
 
             return selectedEntries;
+        }
+
+        private List<int> CollectGridSelectedSourceIndices(DataGrid grid)
+        {
+            var indices = new List<int>();
+            if (grid == null)
+            {
+                return indices;
+            }
+
+            for (int i = 0; i < grid.SelectedItems.Count; i++)
+            {
+                MklinkCheckEntry entry = grid.SelectedItems[i] as MklinkCheckEntry;
+                if (entry != null && entry.SourceIndex >= 0 && !indices.Contains(entry.SourceIndex))
+                {
+                    indices.Add(entry.SourceIndex);
+                }
+            }
+
+            return indices;
         }
 
         private void SelectMissingButton_Click(object sender, RoutedEventArgs e)
@@ -548,6 +570,37 @@ namespace MKLink
                 return;
             }
 
+            if (e.Key == Key.Delete)
+            {
+                if (IsTextEditingContext(e.OriginalSource))
+                {
+                    return;
+                }
+
+                if (_deleteRowsBySourceIndices == null)
+                {
+                    return;
+                }
+
+                List<int> indices = CollectGridSelectedSourceIndices(grid);
+                if (indices.Count == 0)
+                {
+                    var focusedEntry = grid.SelectedItem as MklinkCheckEntry;
+                    if (focusedEntry != null && focusedEntry.SourceIndex >= 0)
+                    {
+                        indices.Add(focusedEntry.SourceIndex);
+                    }
+                }
+
+                if (indices.Count > 0)
+                {
+                    _deleteRowsBySourceIndices(indices);
+                    RefreshFromSource();
+                    e.Handled = true;
+                    return;
+                }
+            }
+
             if (e.Key == Key.Home)
             {
                 if (IsTextEditingContext(e.OriginalSource))
@@ -685,6 +738,20 @@ namespace MKLink
             menu.IsOpen = true;
         }
 
+        private void MatchHeaderButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as FrameworkElement;
+            if (button == null)
+            {
+                return;
+            }
+
+            ContextMenu menu = BuildMatchFilterMenu();
+            menu.PlacementTarget = button;
+            menu.Placement = PlacementMode.Bottom;
+            menu.IsOpen = true;
+        }
+
         private ContextMenu BuildStatusFilterMenu()
         {
             var menu = BuildFilterMenuBase();
@@ -723,6 +790,25 @@ namespace MKLink
             menu.Items.Add(CreateFilterRadioItem("Unchecked", _destinationFilter == DestinationFilterKind.Unchecked, groupName, delegate
             {
                 SetDestinationFilter(DestinationFilterKind.Unchecked);
+            }, menu));
+            return menu;
+        }
+
+        private ContextMenu BuildMatchFilterMenu()
+        {
+            var menu = BuildFilterMenuBase();
+            string groupName = "MatchFilterGroup";
+            menu.Items.Add(CreateFilterRadioItem("All", _matchFilter == MatchFilterKind.All, groupName, delegate
+            {
+                SetMatchFilter(MatchFilterKind.All);
+            }, menu));
+            menu.Items.Add(CreateFilterRadioItem("Match", _matchFilter == MatchFilterKind.Match, groupName, delegate
+            {
+                SetMatchFilter(MatchFilterKind.Match);
+            }, menu));
+            menu.Items.Add(CreateFilterRadioItem("Unmatch", _matchFilter == MatchFilterKind.Unmatch, groupName, delegate
+            {
+                SetMatchFilter(MatchFilterKind.Unmatch);
             }, menu));
             return menu;
         }
@@ -825,6 +911,24 @@ namespace MKLink
             }
         }
 
+        private void SetMatchFilter(MatchFilterKind filter)
+        {
+            _matchFilter = filter;
+            if (EntriesView != null)
+            {
+                EntriesView.Refresh();
+            }
+        }
+
+        public void UpdateSearchFilter(string searchText)
+        {
+            _searchKeyword = searchText != null ? searchText.Trim() : string.Empty;
+            if (EntriesView != null)
+            {
+                EntriesView.Refresh();
+            }
+        }
+
         private bool FilterEntry(object value)
         {
             var entry = value as MklinkCheckEntry;
@@ -833,7 +937,16 @@ namespace MKLink
                 return false;
             }
 
-            return MatchesStatusFilter(entry) && MatchesDestinationFilter(entry);
+            bool matchesSearch = true;
+            if (!string.IsNullOrWhiteSpace(_searchKeyword))
+            {
+                matchesSearch = (entry.NormalizedInput != null && entry.NormalizedInput.IndexOf(_searchKeyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                    || (entry.OutputPath != null && entry.OutputPath.IndexOf(_searchKeyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                    || (entry.AlreadyMklinkTo != null && entry.AlreadyMklinkTo.IndexOf(_searchKeyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                    || (entry.Status != null && entry.Status.IndexOf(_searchKeyword, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            return matchesSearch && MatchesStatusFilter(entry) && MatchesDestinationFilter(entry) && MatchesMatchFilter(entry);
         }
 
         private bool MatchesStatusFilter(MklinkCheckEntry entry)
@@ -869,6 +982,21 @@ namespace MKLink
             }
 
             return !entry.DestinationCheck;
+        }
+
+        private bool MatchesMatchFilter(MklinkCheckEntry entry)
+        {
+            if (_matchFilter == MatchFilterKind.All)
+            {
+                return true;
+            }
+
+            if (_matchFilter == MatchFilterKind.Match)
+            {
+                return entry.IsMatched;
+            }
+
+            return !entry.IsMatched;
         }
 
 
@@ -916,6 +1044,13 @@ namespace MKLink
             All,
             Checked,
             Unchecked
+        }
+
+        private enum MatchFilterKind
+        {
+            All,
+            Match,
+            Unmatch
         }
     }
 }

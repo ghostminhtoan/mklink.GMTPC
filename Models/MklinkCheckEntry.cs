@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Windows.Media;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -66,6 +68,38 @@ namespace MKLink.Models
                 }
 
                 return Brushes.White;
+            }
+        }
+
+        public bool IsMatched
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(OutputPath) || string.IsNullOrEmpty(AlreadyMklinkTo))
+                {
+                    return false;
+                }
+
+                string p1 = OutputPath;
+                try
+                {
+                    p1 = Environment.ExpandEnvironmentVariables(p1);
+                    p1 = Path.GetFullPath(p1);
+                }
+                catch { }
+
+                string p2 = AlreadyMklinkTo;
+                try
+                {
+                    p2 = Environment.ExpandEnvironmentVariables(p2);
+                    p2 = Path.GetFullPath(p2);
+                }
+                catch { }
+
+                p1 = p1.Replace('/', '\\').TrimEnd('\\');
+                p2 = p2.Replace('/', '\\').TrimEnd('\\');
+
+                return string.Equals(p1, p2, StringComparison.OrdinalIgnoreCase);
             }
         }
 
