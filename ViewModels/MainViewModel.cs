@@ -19,6 +19,20 @@ namespace MKLink.ViewModels
         private readonly Stack<MarkdownDocumentState> _undoStack = new Stack<MarkdownDocumentState>();
         private readonly Stack<MarkdownDocumentState> _redoStack = new Stack<MarkdownDocumentState>();
         private bool _isRestoringHistory;
+        private bool _isPortrait;
+
+        public bool IsPortrait
+        {
+            get { return _isPortrait; }
+            set
+            {
+                if (_isPortrait != value)
+                {
+                    _isPortrait = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public MainViewModel()
         {

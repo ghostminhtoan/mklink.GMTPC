@@ -40,6 +40,7 @@ namespace MKLink
             Closing += MainWindow_Closing;
             Closed += MainWindow_Closed;
             Loaded += MainWindow_Loaded;
+            SizeChanged += MainWindow_SizeChanged;
         }
 
         // Quan ly binding UI chinh cua window.
@@ -1174,6 +1175,14 @@ namespace MKLink
             _startupPromptShown = true;
             // De dialog sau khi window da render xong, tranh man hinh trang luc khoi dong.
             Dispatcher.BeginInvoke(new Action(ShowStartupPromptSafely), DispatcherPriority.ContextIdle);
+        }
+
+        private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.IsPortrait = (ActualWidth < ActualHeight) || (ActualWidth < 950);
+            }
         }
 
         private void ShowStartupPromptSafely()
