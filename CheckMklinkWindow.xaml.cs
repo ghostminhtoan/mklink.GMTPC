@@ -224,7 +224,7 @@ namespace MKLink
 
         private void CheckSelectedButton_Click(object sender, RoutedEventArgs e)
         {
-            List<MklinkCheckEntry> selectedEntries = CollectSelectedEntries();
+            List<MklinkCheckEntry> selectedEntries = CollectGridSelectedEntries(CheckGrid);
             if (selectedEntries.Count == 0)
             {
                 return;
@@ -238,7 +238,7 @@ namespace MKLink
 
         private void UncheckSelectedButton_Click(object sender, RoutedEventArgs e)
         {
-            List<MklinkCheckEntry> selectedEntries = CollectSelectedEntries();
+            List<MklinkCheckEntry> selectedEntries = CollectGridSelectedEntries(CheckGrid);
             if (selectedEntries.Count == 0)
             {
                 return;
@@ -461,13 +461,45 @@ namespace MKLink
 
         private void CheckGrid_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key != Key.Space)
+            var grid = sender as DataGrid;
+            if (grid == null)
             {
                 return;
             }
 
-            var grid = sender as DataGrid;
-            if (grid == null)
+            if (e.Key == Key.Home)
+            {
+                if (IsTextEditingContext(e.OriginalSource))
+                {
+                    return;
+                }
+
+                if (grid.Items.Count > 0)
+                {
+                    grid.SelectedIndex = 0;
+                    grid.ScrollIntoView(grid.Items[0]);
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            if (e.Key == Key.End)
+            {
+                if (IsTextEditingContext(e.OriginalSource))
+                {
+                    return;
+                }
+
+                if (grid.Items.Count > 0)
+                {
+                    grid.SelectedIndex = grid.Items.Count - 1;
+                    grid.ScrollIntoView(grid.Items[grid.Items.Count - 1]);
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            if (e.Key != Key.Space)
             {
                 return;
             }

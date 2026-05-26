@@ -185,6 +185,11 @@
                                       Click="CopySelectedOutput_Click" />
                             <MenuItem Header="Copy selected &quot;Already mklink to&quot;"
                                       Click="CopySelectedAlreadyMklinkTo_Click" />
+                            <Separator />
+                            <MenuItem Header="Check selected"
+                                      Click="CheckSelectedButton_Click" />
+                            <MenuItem Header="Uncheck selected"
+                                      Click="UncheckSelectedButton_Click" />
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                     <DataGrid.RowStyle>

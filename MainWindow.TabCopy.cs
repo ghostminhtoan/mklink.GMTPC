@@ -33,13 +33,29 @@ namespace MKLink
                 return;
             }
 
+            bool ctrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+            if (ctrlPressed)
+            {
+                if (e.Key == Key.S)
+                {
+                    SaveMarkdownButton_Click(null, null);
+                    e.Handled = true;
+                    return;
+                }
+                if (e.Key == Key.O)
+                {
+                    LoadMarkdownButton_Click(null, null);
+                    e.Handled = true;
+                    return;
+                }
+            }
+
             var tab = CopyInputGrid != null ? CopyInputGrid.DataContext as PathTabViewModel : null;
             if (tab == null)
             {
                 return;
             }
 
-            bool ctrlPressed = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
             if (!ctrlPressed || e.OriginalSource is TextBox)
             {
                 return;
@@ -68,6 +84,40 @@ namespace MKLink
 
         private void CopyInputGrid_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Home)
+            {
+                if (IsTextEditingContext(e.OriginalSource))
+                {
+                    return;
+                }
+
+                var grid = sender as DataGrid;
+                if (grid != null && grid.Items.Count > 0)
+                {
+                    grid.SelectedIndex = 0;
+                    grid.ScrollIntoView(grid.Items[0]);
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            if (e.Key == Key.End)
+            {
+                if (IsTextEditingContext(e.OriginalSource))
+                {
+                    return;
+                }
+
+                var grid = sender as DataGrid;
+                if (grid != null && grid.Items.Count > 0)
+                {
+                    grid.SelectedIndex = grid.Items.Count - 1;
+                    grid.ScrollIntoView(grid.Items[grid.Items.Count - 1]);
+                    e.Handled = true;
+                    return;
+                }
+            }
+
             if (e.Key == Key.Delete)
             {
                 if (IsTextEditingContext(e.OriginalSource))

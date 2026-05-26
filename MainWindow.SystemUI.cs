@@ -516,11 +516,58 @@ namespace MKLink
             return itemsSource;
         }
 
-        private static bool FilterEditOutputRow(PathTabViewModel tab, PathItem item)
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_viewModel == null || _viewModel.CopyTab == null)
+            {
+                return;
+            }
+
+            string searchText = SearchBox.Text;
+            ICollectionView view = CollectionViewSource.GetDefaultView(_viewModel.CopyTab.SourceItems);
+            if (view != null)
+            {
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    view.Filter = null;
+                }
+                else
+                {
+                    string keyword = searchText.Trim();
+                    view.Filter = item =>
+                    {
+                        var pathItem = item as PathItem;
+                        if (pathItem == null || pathItem.IsPlaceholder)
+                        {
+                            return false;
+                        }
+                        return (pathItem.OriginalInput != null && pathItem.OriginalInput.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                            || (pathItem.NormalizedInput != null && pathItem.NormalizedInput.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                            || (pathItem.EffectiveOutputPath != null && pathItem.EffectiveOutputPath.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+                    };
+                }
+            }
+
+            RefreshEditOutputViews();
+        }
+
+        private bool FilterEditOutputRow(PathTabViewModel tab, PathItem item)
         {
             if (tab == null || item == null || item.IsPlaceholder || item.IsEmpty)
             {
                 return false;
+            }
+
+            if (SearchBox != null && !string.IsNullOrWhiteSpace(SearchBox.Text))
+            {
+                string keyword = SearchBox.Text.Trim();
+                bool matches = (item.OriginalInput != null && item.OriginalInput.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                            || (item.NormalizedInput != null && item.NormalizedInput.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                            || (item.EffectiveOutputPath != null && item.EffectiveOutputPath.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+                if (!matches)
+                {
+                    return false;
+                }
             }
 
             switch (tab.EditOutputFilterKind)

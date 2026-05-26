@@ -559,6 +559,9 @@
                     </Style>
                 </Button.Style>
             </Button>
+            <Separator />
+            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="8,0,4,0" Foreground="{StaticResource MutedTextBrush}"/>
+            <TextBox x:Name="SearchBox" Width="150" Height="26" VerticalAlignment="Center" Margin="0,0,8,0" TextChanged="SearchBox_TextChanged"/>
         </ToolBar>
 
         <TabControl Grid.Row="1">
