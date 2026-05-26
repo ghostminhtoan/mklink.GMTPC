@@ -1405,6 +1405,15 @@ namespace MKLink.ViewModels
     {
         private const string Heading = "# MKLink Path Mapper";
 
+        private static string EscapePipe(string text)
+        {
+            if (text == null)
+            {
+                return string.Empty;
+            }
+            return text.Replace("|", "\\|");
+        }
+
         public static string Serialize(MainViewModel viewModel)
         {
             if (viewModel == null)
@@ -1421,24 +1430,23 @@ namespace MKLink.ViewModels
             builder.AppendLine("- IsWordWrapEnabled: " + viewModel.IsWordWrapEnabled);
             builder.AppendLine();
             builder.AppendLine("## COPY ROWS");
-            builder.AppendLine("```paths");
+            builder.AppendLine();
+            builder.AppendLine("| Original Input | Normalized Input | Mapped Target | Edit Output Path |");
+            builder.AppendLine("| --- | --- | --- | --- |");
 
             for (int i = 0; i < viewModel.CopyTab.SourceItems.Count; i++)
             {
                 PathItem item = viewModel.CopyTab.SourceItems[i];
                 if (item != null && !item.IsPlaceholder && !string.IsNullOrWhiteSpace(item.OriginalInput))
                 {
-                    builder.AppendLine(string.Join("\t", new[]
-                    {
-                        item.OriginalInput ?? string.Empty,
-                        item.NormalizedInput ?? string.Empty,
-                        item.MappedTarget ?? string.Empty,
-                        item.EditOutputPath ?? string.Empty
-                    }));
+                    builder.AppendLine(string.Format("| {0} | {1} | {2} | {3} |",
+                        EscapePipe(item.OriginalInput),
+                        EscapePipe(item.NormalizedInput),
+                        EscapePipe(item.MappedTarget),
+                        EscapePipe(item.EditOutputPath)));
                 }
             }
 
-            builder.AppendLine("```");
             return builder.ToString();
         }
 
@@ -1503,8 +1511,9 @@ namespace MKLink.ViewModels
                     {
                         if (inCodeBlock)
                         {
-                            break;
+                            inCodeBlock = false;
                         }
+                        continue;
                     }
 
                     if (inCodeBlock && trimmed.Length > 0)
@@ -1523,6 +1532,35 @@ namespace MKLink.ViewModels
                         else
                         {
                             state.InputLines.Add(line);
+                        }
+                        continue;
+                    }
+
+                    if (inRowBlock && trimmed.StartsWith("|") && trimmed.EndsWith("|"))
+                    {
+                        if (trimmed.IndexOf("Original Input", StringComparison.OrdinalIgnoreCase) >= 0 || trimmed.IndexOf("---") >= 0)
+                        {
+                            continue;
+                        }
+
+                        string temp = trimmed.Replace("\\|", "\x01");
+                        string[] rawParts = temp.Split('|');
+
+                        if (rawParts.Length >= 5)
+                        {
+                            var parts = new List<string>();
+                            for (int i = 1; i < rawParts.Length - 1; i++)
+                            {
+                                parts.Add(rawParts[i].Trim().Replace("\x01", "|"));
+                            }
+
+                            state.PathRows.Add(new MarkdownPathRowState
+                            {
+                                OriginalInput = parts.Count > 0 ? parts[0] : string.Empty,
+                                NormalizedInput = parts.Count > 1 ? parts[1] : string.Empty,
+                                OutputPath = parts.Count > 2 ? parts[2] : string.Empty,
+                                EditOutputPath = parts.Count > 3 ? parts[3] : string.Empty
+                            });
                         }
                     }
                 }
