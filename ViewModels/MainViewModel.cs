@@ -1414,6 +1414,30 @@ namespace MKLink.ViewModels
             return text.Replace("|", "\\|");
         }
 
+        private static string FormatPathForTable(string path)
+        {
+            if (path == null)
+            {
+                return string.Empty;
+            }
+            string result = path.Replace("\\", "\\<wbr>").Replace("/", "/<wbr>");
+            return EscapePipe(result);
+        }
+
+        private static string CleanTablePath(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return string.Empty;
+            }
+            return path
+                .Replace("<wbr>", "")
+                .Replace("<wbr />", "")
+                .Replace("<WBR>", "")
+                .Replace("<WBR />", "")
+                .Replace("&#8203;", "");
+        }
+
         public static string Serialize(MainViewModel viewModel)
         {
             if (viewModel == null)
@@ -1440,10 +1464,10 @@ namespace MKLink.ViewModels
                 if (item != null && !item.IsPlaceholder && !string.IsNullOrWhiteSpace(item.OriginalInput))
                 {
                     builder.AppendLine(string.Format("| {0} | {1} | {2} | {3} |",
-                        EscapePipe(item.OriginalInput),
-                        EscapePipe(item.NormalizedInput),
-                        EscapePipe(item.MappedTarget),
-                        EscapePipe(item.EditOutputPath)));
+                        FormatPathForTable(item.OriginalInput),
+                        FormatPathForTable(item.NormalizedInput),
+                        FormatPathForTable(item.MappedTarget),
+                        FormatPathForTable(item.EditOutputPath)));
                 }
             }
 
@@ -1551,7 +1575,8 @@ namespace MKLink.ViewModels
                             var parts = new List<string>();
                             for (int i = 1; i < rawParts.Length - 1; i++)
                             {
-                                parts.Add(rawParts[i].Trim().Replace("\x01", "|"));
+                                string val = rawParts[i].Trim().Replace("\x01", "|");
+                                parts.Add(CleanTablePath(val));
                             }
 
                             state.PathRows.Add(new MarkdownPathRowState

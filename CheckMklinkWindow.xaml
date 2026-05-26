@@ -54,6 +54,54 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="SelectionButtonStyle" TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+            <Setter Property="Background" Value="#344955" />
+            <Setter Property="BorderBrush" Value="#344955" />
+            <Setter Property="Foreground" Value="White" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#4A6572" />
+                    <Setter Property="BorderBrush" Value="#4A6572" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="InvertButtonStyle" TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+            <Setter Property="Background" Value="#B87000" />
+            <Setter Property="BorderBrush" Value="#B87000" />
+            <Setter Property="Foreground" Value="White" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#D48806" />
+                    <Setter Property="BorderBrush" Value="#D48806" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CheckButtonStyle" TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+            <Setter Property="Background" Value="#2E7D32" />
+            <Setter Property="BorderBrush" Value="#2E7D32" />
+            <Setter Property="Foreground" Value="White" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#388E3C" />
+                    <Setter Property="BorderBrush" Value="#388E3C" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+            <Setter Property="Background" Value="#C62828" />
+            <Setter Property="BorderBrush" Value="#C62828" />
+            <Setter Property="Foreground" Value="White" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#D32F2F" />
+                    <Setter Property="BorderBrush" Value="#D32F2F" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
 
     <Grid Margin="12">
@@ -100,7 +148,7 @@
                         </Button.Style>
                     </Button>
                     <Button Content="Clear filter"
-                            Margin="0,0,8,0"
+                            Margin="0,0,24,0"
                             Click="ClearFilterButton_Click">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
@@ -114,34 +162,48 @@
                             </Style>
                         </Button.Style>
                     </Button>
+
                     <Button Content="Select mklink"
                             Margin="0,0,8,0"
+                            Style="{StaticResource SelectionButtonStyle}"
                             Click="SelectMklinkButton_Click" />
                     <Button Content="Select missing"
                             Margin="0,0,8,0"
+                            Style="{StaticResource SelectionButtonStyle}"
                             Click="SelectMissingButton_Click" />
                     <Button Content="Select real folder"
                             Margin="0,0,8,0"
+                            Style="{StaticResource SelectionButtonStyle}"
                             Click="SelectRealFolderButton_Click" />
                     <Button Content="Select all"
                             Margin="0,0,8,0"
+                            Style="{StaticResource SelectionButtonStyle}"
                             Click="SelectAllButton_Click" />
                     <Button Content="Select none"
-                            Margin="0,0,8,0"
+                            Margin="0,0,24,0"
+                            Style="{StaticResource SelectionButtonStyle}"
                             Click="SelectNoneButton_Click" />
+
                     <Button Content="Invert select"
-                            Margin="0,0,8,0"
+                            Margin="0,0,24,0"
+                            Style="{StaticResource InvertButtonStyle}"
                             Click="InvertSelectButton_Click" />
+
                     <Button Content="Check selected"
                             Margin="0,0,8,0"
+                            Style="{StaticResource CheckButtonStyle}"
                             Click="CheckSelectedButton_Click" />
                     <Button Content="Uncheck selected"
-                            Margin="0,0,8,0"
+                            Margin="0,0,24,0"
+                            Style="{StaticResource CheckButtonStyle}"
                             Click="UncheckSelectedButton_Click" />
+
                     <Button Content="Delete selected lines"
                             Margin="0,0,8,0"
+                            Style="{StaticResource DeleteButtonStyle}"
                             Click="DeleteSelectedLinesButton_Click" />
                     <Button Content="Delete all lines"
+                            Style="{StaticResource DeleteButtonStyle}"
                             Click="DeleteAllLinesButton_Click" />
                 </WrapPanel>
 
