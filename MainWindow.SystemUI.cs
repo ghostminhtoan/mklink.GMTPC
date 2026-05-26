@@ -146,6 +146,55 @@ namespace MKLink
             RefreshEditOutputGridFilter(grid);
         }
 
+        private static string GetLastSavedMdFolder()
+        {
+            try
+            {
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                string configDir = Path.Combine(appData, "MKLink");
+                string configPath = Path.Combine(configDir, "last_md_folder.txt");
+                if (File.Exists(configPath))
+                {
+                    string path = File.ReadAllText(configPath).Trim();
+                    if (Directory.Exists(path))
+                    {
+                        return path;
+                    }
+                }
+            }
+            catch { }
+            return string.Empty;
+        }
+
+        private static void SaveLastSavedMdFolder(string fileOrFolderPath)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(fileOrFolderPath))
+                {
+                    return;
+                }
+                string folder = Directory.Exists(fileOrFolderPath)
+                    ? fileOrFolderPath
+                    : Path.GetDirectoryName(fileOrFolderPath);
+
+                if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+                {
+                    return;
+                }
+
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                string configDir = Path.Combine(appData, "MKLink");
+                if (!Directory.Exists(configDir))
+                {
+                    Directory.CreateDirectory(configDir);
+                }
+                string configPath = Path.Combine(configDir, "last_md_folder.txt");
+                File.WriteAllText(configPath, folder);
+            }
+            catch { }
+        }
+
         private void SaveMarkdownButton_Click(object sender, RoutedEventArgs e)
         {
             if (_viewModel == null)
@@ -159,6 +208,12 @@ namespace MKLink
                 dialog.DefaultExt = "md";
                 dialog.AddExtension = true;
                 dialog.FileName = "mklink.md";
+
+                string initialDir = GetLastSavedMdFolder();
+                if (!string.IsNullOrWhiteSpace(initialDir))
+                {
+                    dialog.InitialDirectory = initialDir;
+                }
 
                 if (dialog.ShowDialog() != Forms.DialogResult.OK)
                 {
@@ -174,6 +229,7 @@ namespace MKLink
                 try
                 {
                     File.WriteAllText(path, _viewModel.ExportMarkdown());
+                    SaveLastSavedMdFolder(path);
                 }
                 catch (IOException ex)
                 {
@@ -195,6 +251,12 @@ namespace MKLink
                 dialog.DefaultExt = "md";
                 dialog.CheckFileExists = true;
 
+                string initialDir = GetLastSavedMdFolder();
+                if (!string.IsNullOrWhiteSpace(initialDir))
+                {
+                    dialog.InitialDirectory = initialDir;
+                }
+
                 if (dialog.ShowDialog() != Forms.DialogResult.OK)
                 {
                     return;
@@ -204,6 +266,7 @@ namespace MKLink
                 {
                     string markdown = File.ReadAllText(dialog.FileName);
                     _viewModel.ImportMarkdown(markdown);
+                    SaveLastSavedMdFolder(dialog.FileName);
                 }
                 catch (IOException ex)
                 {
