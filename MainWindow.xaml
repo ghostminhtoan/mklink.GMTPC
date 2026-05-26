@@ -17,6 +17,108 @@
         DragOver="MainWindow_DragOver"
         Drop="MainWindow_Drop">
     <Window.Resources>
+        <!-- Responsive layout styles -->
+        <Style x:Key="MainTabColumn0Style" TargetType="ColumnDefinition">
+            <Setter Property="Width" Value="4.2*" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Width" Value="*" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="MainTabColumn1Style" TargetType="ColumnDefinition">
+            <Setter Property="Width" Value="5.8*" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Width" Value="0" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="MainTabRow1Style" TargetType="RowDefinition">
+            <Setter Property="Height" Value="0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Height" Value="1.4*" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="OutputTabColumn1Style" TargetType="ColumnDefinition">
+            <Setter Property="Width" Value="*" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Width" Value="0" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="OutputTabRow1Style" TargetType="RowDefinition">
+            <Setter Property="Height" Value="0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Height" Value="*" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TabInputBorderStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
+            <Setter Property="Grid.Column" Value="0" />
+            <Setter Property="Grid.Row" Value="0" />
+            <Setter Property="Margin" Value="0,10,8,0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Margin" Value="0,10,0,8" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TabInputContentControlStyle" TargetType="ContentControl">
+            <Setter Property="Grid.Column" Value="0" />
+            <Setter Property="Grid.Row" Value="0" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Margin" Value="0,0,0,8" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TabOutputContentControlStyle" TargetType="ContentControl">
+            <Setter Property="Grid.Column" Value="1" />
+            <Setter Property="Grid.Row" Value="0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Grid.Column" Value="0" />
+                    <Setter Property="Grid.Row" Value="1" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="OutputPanelOutputBorderStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
+            <Setter Property="Grid.Column" Value="0" />
+            <Setter Property="Grid.Row" Value="0" />
+            <Setter Property="Margin" Value="0,0,5,0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Margin" Value="0,0,0,5" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="OutputPanelEditOutputBorderStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
+            <Setter Property="Grid.Column" Value="1" />
+            <Setter Property="Grid.Row" Value="0" />
+            <Setter Property="Margin" Value="5,0,0,0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="Grid.Column" Value="0" />
+                    <Setter Property="Grid.Row" Value="1" />
+                    <Setter Property="Margin" Value="0,5,0,0" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
         <Style x:Key="DarkTextBoxBaseStyle" TargetType="TextBox">
             <Setter Property="Background" Value="{StaticResource InputBrush}" />
             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
@@ -459,108 +561,7 @@
                 </Grid>
             </Border>
         </DataTemplate>
-        <!-- Responsive layout styles -->
-        <Style x:Key="MainTabColumn0Style" TargetType="ColumnDefinition">
-            <Setter Property="Width" Value="4.2*" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Width" Value="*" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
 
-        <Style x:Key="MainTabColumn1Style" TargetType="ColumnDefinition">
-            <Setter Property="Width" Value="5.8*" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Width" Value="0" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="MainTabRow1Style" TargetType="RowDefinition">
-            <Setter Property="Height" Value="0" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Height" Value="1.4*" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="OutputTabColumn1Style" TargetType="ColumnDefinition">
-            <Setter Property="Width" Value="*" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Width" Value="0" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="OutputTabRow1Style" TargetType="RowDefinition">
-            <Setter Property="Height" Value="0" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Height" Value="*" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="TabInputBorderStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
-            <Setter Property="Grid.Column" Value="0" />
-            <Setter Property="Grid.Row" Value="0" />
-            <Setter Property="Margin" Value="0,10,8,0" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Margin" Value="0,10,0,8" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="TabInputContentControlStyle" TargetType="ContentControl">
-            <Setter Property="Grid.Column" Value="0" />
-            <Setter Property="Grid.Row" Value="0" />
-            <Setter Property="Margin" Value="0,0,8,0" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Margin" Value="0,0,0,8" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="TabOutputContentControlStyle" TargetType="ContentControl">
-            <Setter Property="Grid.Column" Value="1" />
-            <Setter Property="Grid.Row" Value="0" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Grid.Column" Value="0" />
-                    <Setter Property="Grid.Row" Value="1" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="OutputPanelOutputBorderStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
-            <Setter Property="Grid.Column" Value="0" />
-            <Setter Property="Grid.Row" Value="0" />
-            <Setter Property="Margin" Value="0,0,5,0" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Margin" Value="0,0,0,5" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="OutputPanelEditOutputBorderStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
-            <Setter Property="Grid.Column" Value="1" />
-            <Setter Property="Grid.Row" Value="0" />
-            <Setter Property="Margin" Value="5,0,0,0" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                    <Setter Property="Grid.Column" Value="0" />
-                    <Setter Property="Grid.Row" Value="1" />
-                    <Setter Property="Margin" Value="0,5,0,0" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
     <Grid Margin="12">
