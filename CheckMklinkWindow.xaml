@@ -186,6 +186,11 @@
                             <MenuItem Header="Copy selected &quot;Already mklink to&quot;"
                                       Click="CopySelectedAlreadyMklinkTo_Click" />
                             <Separator />
+                            <MenuItem Header="Go to normalize input folder"
+                                      Click="GoToNormalizeInputFolder_Click" />
+                            <MenuItem Header="Go to output folder"
+                                      Click="GoToOutputFolder_Click" />
+                            <Separator />
                             <MenuItem Header="Check selected"
                                       Click="CheckSelectedButton_Click" />
                             <MenuItem Header="Uncheck selected"

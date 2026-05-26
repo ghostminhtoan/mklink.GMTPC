@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -416,6 +418,85 @@ namespace MKLink
 
             Clipboard.SetText(string.Join(Environment.NewLine, lines));
             _contextMenuCopySnapshot = new List<MklinkCheckEntry>();
+        }
+
+        private void GoToNormalizeInputFolder_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFolderForSelectedEntry(entry => entry != null ? entry.NormalizedInput : null);
+        }
+
+        private void GoToOutputFolder_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFolderForSelectedEntry(entry => entry != null ? entry.OutputPath : null);
+        }
+
+        private void OpenFolderForSelectedEntry(Func<MklinkCheckEntry, string> pathSelector)
+        {
+            if (pathSelector == null)
+            {
+                return;
+            }
+
+            List<MklinkCheckEntry> selectedEntries = CollectEntriesForContextCopy();
+            MklinkCheckEntry targetEntry = null;
+            if (selectedEntries != null && selectedEntries.Count > 0)
+            {
+                targetEntry = selectedEntries[0];
+            }
+            else if (CheckGrid != null)
+            {
+                targetEntry = CheckGrid.SelectedItem as MklinkCheckEntry;
+            }
+
+            if (targetEntry == null)
+            {
+                return;
+            }
+
+            string rawPath = pathSelector(targetEntry);
+            if (string.IsNullOrWhiteSpace(rawPath))
+            {
+                return;
+            }
+
+            try
+            {
+                string expandedPath = Environment.ExpandEnvironmentVariables(rawPath);
+                expandedPath = Path.GetFullPath(expandedPath);
+
+                if (File.Exists(expandedPath) || Directory.Exists(expandedPath))
+                {
+                    Process.Start("explorer.exe", string.Format("/select,\"{0}\"", expandedPath));
+                }
+                else
+                {
+                    string parentPath = Path.GetDirectoryName(expandedPath);
+                    if (!string.IsNullOrEmpty(parentPath) && Directory.Exists(parentPath))
+                    {
+                        Process.Start("explorer.exe", string.Format("\"{0}\"", parentPath));
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            string.Format("Đường dẫn không tồn tại: {0}", expandedPath),
+                            "Không tìm thấy thư mục",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    string.Format("Không thể mở thư mục: {0}", ex.Message),
+                    "Lỗi",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            finally
+            {
+                _contextMenuCopySnapshot = new List<MklinkCheckEntry>();
+            }
         }
 
         private void CheckGrid_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
