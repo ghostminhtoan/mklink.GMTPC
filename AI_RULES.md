@@ -22,6 +22,8 @@
 - Giữ nguyên kiến trúc và cách chia tách file hiện tại của dự án.
 - Không làm hỏng hoặc thay đổi luồng hoạt động của các Tab hiện tại: `Direct` và `Reverse`.
 - Luôn luôn lưu và viết code bằng định dạng encoding UTF-8 (ưu tiên UTF-8 với BOM cho các file .NET/C#) để đảm bảo các trình biên tập và AI Agent (Claude, Visual Studio Code, Antigravity, Codex...) hiển thị/xử lý đúng tiếng Việt có dấu trong comment hoặc chuỗi ký tự mà không bị lỗi chính tả hay lỗi font.
+- Đối với giao diện tối (Dark Theme), tất cả các màu sắc bổ sung hoặc tùy chỉnh (như màu nền nút bấm, màu hover, màu văn bản) phải được lựa chọn theo các tông màu tối hài hòa (ví dụ: bảng màu tối của Material Design), tránh sử dụng các màu quá sáng/neon gây chói mắt và phải bảo đảm độ tương phản rõ ràng so với màu nền xung quanh.
+
 
 ## Quy tắc hành vi khi ứng dụng chạy (Runtime Behavior Rules)
 - Cửa sổ `Check mklink` bắt buộc phải là cửa sổ dạng non-modal (không chặn tương tác cửa sổ chính) và liên kết dữ liệu trực tiếp với `MainWindow`.
