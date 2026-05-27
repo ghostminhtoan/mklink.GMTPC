@@ -10,6 +10,7 @@ namespace MKLink
         {
             InitializeComponent();
             FilePathText.Text = currentFilePath;
+            Loaded += (s, e) => OverwriteButton.Focus();
         }
 
         private void OverwriteButton_Click(object sender, RoutedEventArgs e)
