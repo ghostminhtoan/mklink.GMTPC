@@ -794,6 +794,65 @@ namespace MKLink.ViewModels
             RaiseDataChanged();
         }
 
+        public void SortSourceItemsByEdited(bool descending)
+        {
+            if (SourceItems == null || SourceItems.Count <= 1)
+            {
+                return;
+            }
+
+            RecordHistory();
+            _isRefreshing = true;
+            try
+            {
+                var itemsWithIndex = SourceItems
+                    .Select((item, index) => new { Item = item, OriginalIndex = index })
+                    .ToList();
+
+                var placeholders = itemsWithIndex.Where(x => x.Item.IsPlaceholder).ToList();
+                var normalItems = itemsWithIndex.Where(x => !x.Item.IsPlaceholder).ToList();
+
+                normalItems.Sort((a, b) =>
+                {
+                    bool aEdited = a.Item.IsEdited;
+                    bool bEdited = b.Item.IsEdited;
+
+                    if (aEdited != bEdited)
+                    {
+                        if (descending)
+                        {
+                            return aEdited ? -1 : 1;
+                        }
+                        else
+                        {
+                            return aEdited ? 1 : -1;
+                        }
+                    }
+
+                    return a.OriginalIndex.CompareTo(b.OriginalIndex);
+                });
+
+                var sortedList = normalItems.Concat(placeholders).Select(x => x.Item).ToList();
+
+                for (int i = 0; i < sortedList.Count; i++)
+                {
+                    var targetItem = sortedList[i];
+                    int currentIndex = SourceItems.IndexOf(targetItem);
+                    if (currentIndex != i && currentIndex >= 0)
+                    {
+                        SourceItems.Move(currentIndex, i);
+                    }
+                }
+            }
+            finally
+            {
+                _isRefreshing = false;
+            }
+
+            RefreshAll();
+            RaiseDataChanged();
+        }
+
         public void ClearAllSourceItems()
         {
             if (IsMirrorTab)

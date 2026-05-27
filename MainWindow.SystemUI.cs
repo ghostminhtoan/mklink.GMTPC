@@ -219,54 +219,7 @@ namespace MKLink
 
                 e.Column.SortDirection = direction;
 
-                SortSourceItemsByEdited(tab.SourceItems, direction == ListSortDirection.Descending);
-            }
-        }
-
-        private void SortSourceItemsByEdited(ObservableCollection<PathItem> collection, bool descending)
-        {
-            if (collection == null || collection.Count <= 1)
-            {
-                return;
-            }
-
-            var itemsWithIndex = collection
-                .Select((item, index) => new { Item = item, OriginalIndex = index })
-                .ToList();
-
-            var placeholders = itemsWithIndex.Where(x => x.Item.IsPlaceholder).ToList();
-            var normalItems = itemsWithIndex.Where(x => !x.Item.IsPlaceholder).ToList();
-
-            normalItems.Sort((a, b) =>
-            {
-                bool aEdited = a.Item.IsEdited;
-                bool bEdited = b.Item.IsEdited;
-
-                if (aEdited != bEdited)
-                {
-                    if (descending)
-                    {
-                        return aEdited ? -1 : 1;
-                    }
-                    else
-                    {
-                        return aEdited ? 1 : -1;
-                    }
-                }
-
-                return a.OriginalIndex.CompareTo(b.OriginalIndex);
-            });
-
-            var sortedList = normalItems.Concat(placeholders).Select(x => x.Item).ToList();
-
-            for (int i = 0; i < sortedList.Count; i++)
-            {
-                var targetItem = sortedList[i];
-                int currentIndex = collection.IndexOf(targetItem);
-                if (currentIndex != i && currentIndex >= 0)
-                {
-                    collection.Move(currentIndex, i);
-                }
+                tab.SortSourceItemsByEdited(direction == ListSortDirection.Descending);
             }
         }
 
