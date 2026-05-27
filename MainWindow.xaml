@@ -164,7 +164,8 @@
                               CanUserAddRows="False"
                               CanUserDeleteRows="{Binding CanEditRows}"
                               IsReadOnly="{Binding IsMirrorTab}"
-                              SelectionChanged="InputGrid_SelectionChanged">
+                              SelectionChanged="InputGrid_SelectionChanged"
+                              CanUserSortColumns="False">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow"
                                    BasedOn="{StaticResource DarkDataGridRowStyle}">
@@ -211,11 +212,28 @@
                               CanUserDeleteRows="False"
                               IsReadOnly="True"
                               SelectionChanged="InputGrid_SelectionChanged"
-                              Loaded="EditOutputGrid_Loaded">
+                              Loaded="EditOutputGrid_Loaded"
+                              Sorting="OutputGrid_Sorting">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow"
                                    BasedOn="{StaticResource DarkDataGridRowStyle}">
+                                <EventSetter Event="MouseDoubleClick" Handler="OutputGridRow_MouseDoubleClick" />
+                                <Setter Property="ContextMenu">
+                                    <Setter.Value>
+                                        <ContextMenu Style="{StaticResource DarkContextMenuStyle}">
+                                            <MenuItem Header="Edit Output Path"
+                                                      Style="{StaticResource DarkContextMenuItemStyle}"
+                                                      Click="RowContextMenuEdit_Click" />
+                                            <MenuItem Header="Restore Default Path"
+                                                      Style="{StaticResource DarkContextMenuItemStyle}"
+                                                      Click="RowContextMenuRestore_Click" />
+                                        </ContextMenu>
+                                    </Setter.Value>
+                                </Setter>
                                 <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
+                                        <Setter Property="ContextMenu" Value="{x:Null}" />
+                                    </DataTrigger>
                                     <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
                                         <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
                                         <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
@@ -226,14 +244,17 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Output"
                                                 Width="*"
+                                                CanUserSort="False"
                                                 Binding="{Binding MappedTarget, Mode=OneWay}"
                                                 ElementStyle="{StaticResource WrapTextBlockStyle}" />
                             <DataGridTextColumn Header="Edit Output"
                                                 Width="*"
+                                                CanUserSort="True"
                                                 Binding="{Binding EffectiveOutputPath, Mode=OneWay}"
                                                 ElementStyle="{StaticResource EditedTextBlockStyle}" />
                             <DataGridTemplateColumn Header="Filter"
-                                                    Width="90">
+                                                    Width="90"
+                                                    CanUserSort="False">
                                 <DataGridTemplateColumn.HeaderTemplate>
                                     <DataTemplate>
                                         <Button Content="Filter"
@@ -250,53 +271,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Actions"
-                                                    Width="Auto">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border BorderBrush="{StaticResource BorderBrushDark}"
-                                                BorderThickness="1"
-                                                CornerRadius="4"
-                                                Padding="3"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center">
-                                            <StackPanel>
-                                                <Button Content="Edit"
-                                                        Click="EditOutputButton_Click"
-                                                        MinWidth="76"
-                                                        Height="22"
-                                                        FontSize="11"
-                                                        Margin="0,0,0,3">
-                                                    <Button.Style>
-                                                        <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
-                                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Button.Style>
-                                                </Button>
-                                                <Button Content="Restore default"
-                                                        Click="RestoreDefaultOutputButton_Click"
-                                                        MinWidth="76"
-                                                        Height="22"
-                                                        FontSize="10">
-                                                    <Button.Style>
-                                                        <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
-                                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Button.Style>
-                                                </Button>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
+
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -613,7 +588,8 @@
                                                       PreviewMouseMove="CopyInputGrid_PreviewMouseMove"
                                                       DragOver="CopyInputGrid_DragOver"
                                                       Drop="CopyInputGrid_Drop"
-                                                      PreviewKeyDown="CopyInputGrid_PreviewKeyDown">
+                                                      PreviewKeyDown="CopyInputGrid_PreviewKeyDown"
+                                                      CanUserSortColumns="False">
                                                 <DataGrid.RowStyle>
                                                     <Style TargetType="DataGridRow"
                                                            BasedOn="{StaticResource DarkDataGridRowStyle}">

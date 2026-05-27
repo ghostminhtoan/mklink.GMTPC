@@ -16,6 +16,8 @@ using System.Windows.Threading;
 using Forms = System.Windows.Forms;
 using MKLink.Models;
 using MKLink.ViewModels;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace MKLink
 {
@@ -100,14 +102,23 @@ namespace MKLink
             }
         }
 
-        private void EditOutputButton_Click(object sender, RoutedEventArgs e)
+        private void HandleEditOutput(PathItem item, DependencyObject visualElement)
         {
-            var element = sender as FrameworkElement;
-            var item = element != null ? element.DataContext as PathItem : null;
-            var grid = FindParent<DataGrid>(element);
             if (item == null)
             {
                 return;
+            }
+
+            DataGrid grid = null;
+            if (visualElement is MenuItem menuItem)
+            {
+                var contextMenu = menuItem.Parent as ContextMenu;
+                var row = contextMenu != null ? contextMenu.PlacementTarget as DataGridRow : null;
+                grid = row != null ? FindParent<DataGrid>(row) : null;
+            }
+            else
+            {
+                grid = FindParent<DataGrid>(visualElement);
             }
 
             string initialPath = item.EditOutputPath;
@@ -127,17 +138,29 @@ namespace MKLink
             }
 
             item.EditOutputPath = pickedPath;
-            RefreshEditOutputGridFilter(grid);
+            if (grid != null)
+            {
+                RefreshEditOutputGridFilter(grid);
+            }
         }
 
-        private void RestoreDefaultOutputButton_Click(object sender, RoutedEventArgs e)
+        private void HandleRestoreDefault(PathItem item, DependencyObject visualElement)
         {
-            var element = sender as FrameworkElement;
-            var item = element != null ? element.DataContext as PathItem : null;
-            var grid = FindParent<DataGrid>(element);
             if (item == null)
             {
                 return;
+            }
+
+            DataGrid grid = null;
+            if (visualElement is MenuItem menuItem)
+            {
+                var contextMenu = menuItem.Parent as ContextMenu;
+                var row = contextMenu != null ? contextMenu.PlacementTarget as DataGridRow : null;
+                grid = row != null ? FindParent<DataGrid>(row) : null;
+            }
+            else
+            {
+                grid = FindParent<DataGrid>(visualElement);
             }
 
             if (_viewModel != null)
@@ -146,7 +169,105 @@ namespace MKLink
             }
 
             item.EditOutputPath = string.Empty;
-            RefreshEditOutputGridFilter(grid);
+            if (grid != null)
+            {
+                RefreshEditOutputGridFilter(grid);
+            }
+        }
+
+        private void RowContextMenuEdit_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            var item = menuItem != null ? menuItem.DataContext as PathItem : null;
+            HandleEditOutput(item, menuItem);
+        }
+
+        private void RowContextMenuRestore_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            var item = menuItem != null ? menuItem.DataContext as PathItem : null;
+            HandleRestoreDefault(item, menuItem);
+        }
+
+        private void OutputGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var row = sender as DataGridRow;
+            var item = row != null ? row.DataContext as PathItem : null;
+            if (item == null || item.IsPlaceholder)
+            {
+                return;
+            }
+            HandleEditOutput(item, row);
+        }
+
+        private void OutputGrid_Sorting(object sender, DataGridSortingEventArgs e)
+        {
+            e.Handled = true; // Prevent default sorting
+
+            if (e.Column.Header != null && e.Column.Header.ToString() == "Edit Output")
+            {
+                var grid = sender as DataGrid;
+                var tab = grid?.DataContext as PathTabViewModel;
+                if (tab == null || tab.SourceItems == null)
+                {
+                    return;
+                }
+
+                var direction = e.Column.SortDirection == ListSortDirection.Descending
+                    ? ListSortDirection.Ascending
+                    : ListSortDirection.Descending;
+
+                e.Column.SortDirection = direction;
+
+                SortSourceItemsByEdited(tab.SourceItems, direction == ListSortDirection.Descending);
+            }
+        }
+
+        private void SortSourceItemsByEdited(ObservableCollection<PathItem> collection, bool descending)
+        {
+            if (collection == null || collection.Count <= 1)
+            {
+                return;
+            }
+
+            var itemsWithIndex = collection
+                .Select((item, index) => new { Item = item, OriginalIndex = index })
+                .ToList();
+
+            var placeholders = itemsWithIndex.Where(x => x.Item.IsPlaceholder).ToList();
+            var normalItems = itemsWithIndex.Where(x => !x.Item.IsPlaceholder).ToList();
+
+            normalItems.Sort((a, b) =>
+            {
+                bool aEdited = a.Item.IsEdited;
+                bool bEdited = b.Item.IsEdited;
+
+                if (aEdited != bEdited)
+                {
+                    if (descending)
+                    {
+                        return aEdited ? -1 : 1;
+                    }
+                    else
+                    {
+                        return aEdited ? 1 : -1;
+                    }
+                }
+
+                return a.OriginalIndex.CompareTo(b.OriginalIndex);
+            });
+
+            var sortedList = normalItems.Concat(placeholders).Select(x => x.Item).ToList();
+
+            for (int i = 0; i < sortedList.Count; i++)
+            {
+                var targetItem = sortedList[i];
+                int currentIndex = collection.IndexOf(targetItem);
+                if (currentIndex != i && currentIndex >= 0)
+                {
+                    collection.Move(currentIndex, i);
+                }
+            }
         }
 
         private static string GetLastSavedMdFolder()
