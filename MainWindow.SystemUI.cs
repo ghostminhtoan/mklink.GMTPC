@@ -178,14 +178,24 @@ namespace MKLink
         private void RowContextMenuEdit_Click(object sender, RoutedEventArgs e)
         {
             var menuItem = sender as MenuItem;
-            var item = menuItem != null ? menuItem.DataContext as PathItem : null;
+            if (menuItem == null) return;
+
+            var contextMenu = menuItem.Parent as ContextMenu;
+            var row = contextMenu != null ? contextMenu.PlacementTarget as DataGridRow : null;
+            var item = row != null ? row.DataContext as PathItem : null;
+
             HandleEditOutput(item, menuItem);
         }
 
         private void RowContextMenuRestore_Click(object sender, RoutedEventArgs e)
         {
             var menuItem = sender as MenuItem;
-            var item = menuItem != null ? menuItem.DataContext as PathItem : null;
+            if (menuItem == null) return;
+
+            var contextMenu = menuItem.Parent as ContextMenu;
+            var row = contextMenu != null ? contextMenu.PlacementTarget as DataGridRow : null;
+            var item = row != null ? row.DataContext as PathItem : null;
+
             HandleRestoreDefault(item, menuItem);
         }
 
@@ -198,6 +208,119 @@ namespace MKLink
                 return;
             }
             HandleEditOutput(item, row);
+        }
+
+        private void OutputGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            var grid = sender as DataGrid;
+            if (grid == null)
+            {
+                return;
+            }
+
+            if (e.Key == Key.Home)
+            {
+                if (IsTextEditingContext(e.OriginalSource))
+                {
+                    return;
+                }
+
+                if (grid.Items.Count > 0)
+                {
+                    grid.SelectedIndex = 0;
+                    grid.ScrollIntoView(grid.Items[0]);
+                    e.Handled = true;
+                }
+                return;
+            }
+
+            if (e.Key == Key.End)
+            {
+                if (IsTextEditingContext(e.OriginalSource))
+                {
+                    return;
+                }
+
+                if (grid.Items.Count > 0)
+                {
+                    grid.SelectedIndex = grid.Items.Count - 1;
+                    grid.ScrollIntoView(grid.Items[grid.Items.Count - 1]);
+                    e.Handled = true;
+                }
+                return;
+            }
+
+            if (e.Key == Key.Delete)
+            {
+                if (IsTextEditingContext(e.OriginalSource))
+                {
+                    return;
+                }
+
+                DeleteSelectedRows(grid);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void ClearSortDirectionsOnOtherColumns(DataGrid sourceGrid, DataGridColumn activeColumn)
+        {
+            var linked = FindLinkedDataGrids(sourceGrid);
+            foreach (var grid in linked)
+            {
+                foreach (var col in grid.Columns)
+                {
+                    if (col != activeColumn && (col.Header?.ToString() != activeColumn.Header?.ToString()))
+                    {
+                        col.SortDirection = null;
+                    }
+                }
+            }
+        }
+
+        private void InputGrid_Sorting(object sender, DataGridSortingEventArgs e)
+        {
+            e.Handled = true; // Prevent default sorting
+
+            var column = e.Column;
+            string header = column.Header != null ? column.Header.ToString() : string.Empty;
+            if (header == "Input" || header == "Normalize Input")
+            {
+                var grid = sender as DataGrid;
+                var tab = grid?.DataContext as PathTabViewModel;
+                if (tab == null || tab.SourceItems == null)
+                {
+                    return;
+                }
+
+                var direction = column.SortDirection == ListSortDirection.Descending
+                    ? ListSortDirection.Ascending
+                    : ListSortDirection.Descending;
+
+                column.SortDirection = direction;
+
+                ClearSortDirectionsOnOtherColumns(grid, column);
+
+                bool sortByNormalize = (header == "Normalize Input");
+                tab.SortSourceItemsByInput(sortByNormalize, direction == ListSortDirection.Descending);
+
+                // Scroll to top/bottom depending on sort direction
+                var linked = FindLinkedDataGrids(grid);
+                foreach (var g in linked)
+                {
+                    if (g.Items.Count > 0)
+                    {
+                        if (direction == ListSortDirection.Descending)
+                        {
+                            g.ScrollIntoView(g.Items[g.Items.Count - 1]);
+                        }
+                        else
+                        {
+                            g.ScrollIntoView(g.Items[0]);
+                        }
+                    }
+                }
+            }
         }
 
         private void OutputGrid_Sorting(object sender, DataGridSortingEventArgs e)
@@ -219,7 +342,25 @@ namespace MKLink
 
                 e.Column.SortDirection = direction;
 
+                ClearSortDirectionsOnOtherColumns(grid, e.Column);
+
                 tab.SortSourceItemsByEdited(direction == ListSortDirection.Descending);
+
+                var linked = FindLinkedDataGrids(grid);
+                foreach (var g in linked)
+                {
+                    if (g.Items.Count > 0)
+                    {
+                        if (direction == ListSortDirection.Descending)
+                        {
+                            g.ScrollIntoView(g.Items[0]);
+                        }
+                        else
+                        {
+                            g.ScrollIntoView(g.Items[g.Items.Count - 1]);
+                        }
+                    }
+                }
             }
         }
 

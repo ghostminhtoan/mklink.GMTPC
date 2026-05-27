@@ -853,6 +853,62 @@ namespace MKLink.ViewModels
             RaiseDataChanged();
         }
 
+        public void SortSourceItemsByInput(bool sortByNormalize, bool descending)
+        {
+            if (SourceItems == null || SourceItems.Count <= 1)
+            {
+                return;
+            }
+
+            RecordHistory();
+            _isRefreshing = true;
+            try
+            {
+                var itemsWithIndex = SourceItems
+                    .Select((item, index) => new { Item = item, OriginalIndex = index })
+                    .ToList();
+
+                var placeholders = itemsWithIndex.Where(x => x.Item.IsPlaceholder).ToList();
+                var normalItems = itemsWithIndex.Where(x => !x.Item.IsPlaceholder).ToList();
+
+                normalItems.Sort((a, b) =>
+                {
+                    string valA = sortByNormalize ? a.Item.NormalizedInput : a.Item.OriginalInput;
+                    string valB = sortByNormalize ? b.Item.NormalizedInput : b.Item.OriginalInput;
+
+                    valA = valA ?? string.Empty;
+                    valB = valB ?? string.Empty;
+
+                    int cmp = string.Compare(valA, valB, StringComparison.OrdinalIgnoreCase);
+                    if (cmp != 0)
+                    {
+                        return descending ? -cmp : cmp;
+                    }
+
+                    return a.OriginalIndex.CompareTo(b.OriginalIndex);
+                });
+
+                var sortedList = normalItems.Concat(placeholders).Select(x => x.Item).ToList();
+
+                for (int i = 0; i < sortedList.Count; i++)
+                {
+                    var targetItem = sortedList[i];
+                    int currentIndex = SourceItems.IndexOf(targetItem);
+                    if (currentIndex != i && currentIndex >= 0)
+                    {
+                        SourceItems.Move(currentIndex, i);
+                    }
+                }
+            }
+            finally
+            {
+                _isRefreshing = false;
+            }
+
+            RefreshAll();
+            RaiseDataChanged();
+        }
+
         public void ClearAllSourceItems()
         {
             if (IsMirrorTab)

@@ -165,7 +165,8 @@
                               CanUserDeleteRows="{Binding CanEditRows}"
                               IsReadOnly="{Binding IsMirrorTab}"
                               SelectionChanged="InputGrid_SelectionChanged"
-                              CanUserSortColumns="False">
+                              CanUserSortColumns="True"
+                              Sorting="InputGrid_Sorting">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow"
                                    BasedOn="{StaticResource DarkDataGridRowStyle}">
@@ -213,7 +214,8 @@
                               IsReadOnly="True"
                               SelectionChanged="InputGrid_SelectionChanged"
                               Loaded="EditOutputGrid_Loaded"
-                              Sorting="OutputGrid_Sorting">
+                              Sorting="OutputGrid_Sorting"
+                              PreviewKeyDown="OutputGrid_PreviewKeyDown">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow"
                                    BasedOn="{StaticResource DarkDataGridRowStyle}">
@@ -589,7 +591,8 @@
                                                       DragOver="CopyInputGrid_DragOver"
                                                       Drop="CopyInputGrid_Drop"
                                                       PreviewKeyDown="CopyInputGrid_PreviewKeyDown"
-                                                      CanUserSortColumns="False">
+                                                      CanUserSortColumns="True"
+                                                      Sorting="InputGrid_Sorting">
                                                 <DataGrid.RowStyle>
                                                     <Style TargetType="DataGridRow"
                                                            BasedOn="{StaticResource DarkDataGridRowStyle}">
