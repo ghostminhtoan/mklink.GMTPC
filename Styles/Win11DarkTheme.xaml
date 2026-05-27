@@ -192,11 +192,11 @@
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
     </Style>
 
-    <Style TargetType="TabItem">
+    <Style x:Key="ParentTabItemStyle" TargetType="TabItem">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
-        <Setter Property="Padding" Value="18,10" />
-        <Setter Property="Margin" Value="0,0,8,0" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
@@ -206,7 +206,7 @@
                             Background="{StaticResource PanelBrush}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="18"
+                            CornerRadius="16"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
@@ -220,7 +220,7 @@
                             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                            <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource SurfaceElevatedBrush}" />
                             <Setter TargetName="TabBorder" Property="BorderBrush" Value="{StaticResource AccentBorderBrush}" />
                             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
                         </Trigger>
@@ -230,10 +230,12 @@
         </Setter>
     </Style>
 
+    <Style TargetType="TabItem" BasedOn="{StaticResource ParentTabItemStyle}" />
+
     <Style x:Key="ChildTabItemStyle" TargetType="TabItem">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
-        <Setter Property="Padding" Value="14,8" />
+        <Setter Property="Padding" Value="12,7" />
         <Setter Property="Margin" Value="0,0,8,0" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="1" />
@@ -241,10 +243,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
                     <Border x:Name="TabBorder"
-                            Background="Transparent"
+                            Background="{StaticResource BackgroundBrush}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="14"
+                            CornerRadius="12"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
@@ -258,7 +260,7 @@
                             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource SurfaceElevatedBrush}" />
+                            <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource AccentSoftBrush}" />
                             <Setter TargetName="TabBorder" Property="BorderBrush" Value="{StaticResource AccentBorderBrush}" />
                             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
                         </Trigger>
