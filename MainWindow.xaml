@@ -22,9 +22,38 @@
             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDark}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Padding" Value="10,8" />
             <Setter Property="CaretBrush" Value="{StaticResource TextBrush}" />
             <Setter Property="SelectionBrush" Value="{StaticResource AccentBrush}" />
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="TextBoxBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="16">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="TextBoxBorder" Property="BorderBrush" Value="{StaticResource AccentBorderBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TextBoxBorder" Property="BorderBrush" Value="{StaticResource AccentBorderBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsReadOnly" Value="True">
+                                <Setter TargetName="TextBoxBorder" Property="Background" Value="{StaticResource SurfaceElevatedBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="TextBoxBorder" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="DarkToggleButtonBaseStyle" TargetType="ToggleButton">
@@ -32,9 +61,11 @@
             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDark}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="12,6" />
-            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="Padding" Value="16,9" />
+            <Setter Property="MinHeight" Value="38" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
@@ -42,23 +73,23 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="12">
+                                CornerRadius="16">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               Margin="{TemplateBinding Padding}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ToggleBorder" Property="Background" Value="#3A3A3A" />
-                                <Setter TargetName="ToggleBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="ToggleBorder" Property="Background" Value="{StaticResource SurfaceElevatedBrush}" />
+                                <Setter TargetName="ToggleBorder" Property="BorderBrush" Value="{StaticResource AccentBorderBrush}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="ToggleBorder" Property="Background" Value="{StaticResource AccentBrush}" />
-                                <Setter TargetName="ToggleBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
-                                <Setter Property="Foreground" Value="White" />
+                                <Setter TargetName="ToggleBorder" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                                <Setter TargetName="ToggleBorder" Property="BorderBrush" Value="{StaticResource AccentBorderBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="ToggleBorder" Property="Opacity" Value="0.55" />
+                                <Setter TargetName="ToggleBorder" Property="Opacity" Value="0.45" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -80,7 +111,7 @@
                BasedOn="{StaticResource WrapTextBlockStyle}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsEdited}" Value="True">
-                    <Setter Property="Foreground" Value="Cyan" />
+                    <Setter Property="Foreground" Value="{StaticResource AccentHoverBrush}" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -301,10 +332,9 @@
                                  Style="{StaticResource ResultTextBoxStyle}"
                                  Text="{Binding ScriptResult, Mode=OneWay}" />
                     </Grid>
-                    <StackPanel Grid.Row="2"
-                                Margin="0,10,0,0"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right">
+                    <WrapPanel Grid.Row="2"
+                               Margin="0,10,0,0"
+                               HorizontalAlignment="Right">
                         <Button Content="Copy"
                                 Width="88"
                                 Click="CopyResultButton_Click" />
@@ -336,7 +366,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                    </StackPanel>
+                    </WrapPanel>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -361,10 +391,9 @@
                                  Style="{StaticResource ResultTextBoxStyle}"
                                  Text="{Binding ScriptResult, Mode=OneWay}" />
                     </Grid>
-                    <StackPanel Grid.Row="2"
-                                Margin="0,10,0,0"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right">
+                                                <WrapPanel Grid.Row="2"
+                                                           Margin="0,10,0,0"
+                                                           HorizontalAlignment="Right">
                         <Button Click="ReversePrimaryActionButton_Click"
                                 Width="140">
                             <Button.Style>
@@ -400,13 +429,13 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                    </StackPanel>
+                                                </WrapPanel>
                 </Grid>
             </Border>
         </DataTemplate>
     </Window.Resources>
 
-    <Grid Margin="12">
+    <Grid Margin="18">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -414,108 +443,94 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
-                Margin="0,0,0,8"
+                Margin="0,0,0,14"
                 Style="{StaticResource PanelBorderStyle}"
-                Padding="8">
-            <WrapPanel VerticalAlignment="Center">
-            <ToggleButton Style="{StaticResource WordWrapToggleStyle}"
-                          IsChecked="{Binding IsWordWrapEnabled, Mode=TwoWay}" />
-            <Button Content="Delete selected lines"
-                    Margin="8,0,0,0"
-                    Click="DeleteSelectedLinesButton_Click" />
-            <Button Content="Clear all"
-                    Margin="6,0,0,0"
-                    Click="ClearAllButton_Click" />
-            <Separator />
-            <Button Content="Save .md"
-                    Margin="8,0,0,0"
-                    Click="SaveMarkdownButton_Click">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Background" Value="#2E7D32" />
-                        <Setter Property="BorderBrush" Value="#2E7D32" />
-                        <Setter Property="Foreground" Value="White" />
-                        <Setter Property="MinHeight" Value="36" />
-                        <Setter Property="MinWidth" Value="110" />
-                        <Setter Property="FontSize" Value="13" />
-                        <Setter Property="FontWeight" Value="SemiBold" />
-                        <Setter Property="Padding" Value="16,6" />
-                        <Setter Property="Cursor" Value="Hand" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="ButtonBorder"
-                                            Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="5">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Margin="{TemplateBinding Padding}" />
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ButtonBorder" Property="Background" Value="#388E3C" />
-                                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#388E3C" />
-                                        </Trigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.55" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Button.Style>
-            </Button>
-            <Button Content="Load .md"
-                    Margin="6,0,0,0"
-                    Click="LoadMarkdownButton_Click">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Background" Value="#D84315" />
-                        <Setter Property="BorderBrush" Value="#D84315" />
-                        <Setter Property="Foreground" Value="White" />
-                        <Setter Property="MinHeight" Value="36" />
-                        <Setter Property="MinWidth" Value="110" />
-                        <Setter Property="FontSize" Value="13" />
-                        <Setter Property="FontWeight" Value="SemiBold" />
-                        <Setter Property="Padding" Value="16,6" />
-                        <Setter Property="Cursor" Value="Hand" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="ButtonBorder"
-                                            Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="5">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Margin="{TemplateBinding Padding}" />
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ButtonBorder" Property="Background" Value="#E64A19" />
-                                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#E64A19" />
-                                        </Trigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.55" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Button.Style>
-            </Button>
-            <Separator />
-            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="8,0,4,0" Foreground="{StaticResource MutedTextBrush}"/>
-            <TextBox x:Name="SearchBox" Width="150" Height="26" VerticalAlignment="Center" Margin="0,0,8,0" TextChanged="SearchBox_TextChanged"/>
-            </WrapPanel>
+                Padding="18">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Margin="0,0,18,0">
+                    <TextBlock Text="MKLink Path Mapper"
+                               FontSize="24"
+                               FontWeight="SemiBold" />
+                    <TextBlock Margin="0,6,0,0"
+                               Foreground="{StaticResource MutedTextBrush}"
+                               Text="Rebuilt with a calmer Flet-style shell: clearer cards, lighter hierarchy, and controls that stay usable in both wide and tall window shapes." />
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        VerticalAlignment="Top"
+                        Padding="12,8"
+                        Background="{StaticResource AccentSoftBrush}"
+                        BorderBrush="{StaticResource AccentBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="16">
+                    <TextBlock Text="Responsive layout"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource AccentHoverBrush}" />
+                </Border>
+
+                <WrapPanel Grid.Row="1"
+                           Grid.ColumnSpan="2"
+                           Margin="0,18,0,0"
+                           VerticalAlignment="Center">
+                    <ToggleButton Style="{StaticResource WordWrapToggleStyle}"
+                                  IsChecked="{Binding IsWordWrapEnabled, Mode=TwoWay}" />
+                    <Button Content="Delete selected lines"
+                            Margin="8,0,0,0"
+                            Click="DeleteSelectedLinesButton_Click" />
+                    <Button Content="Clear all"
+                            Margin="8,0,0,0"
+                            Click="ClearAllButton_Click" />
+                    <Button Content="Save .md"
+                            Margin="8,0,0,0"
+                            Click="SaveMarkdownButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                <Setter Property="Background" Value="#2B9369" />
+                                <Setter Property="BorderBrush" Value="#2B9369" />
+                                <Setter Property="MinWidth" Value="112" />
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Load .md"
+                            Margin="8,0,0,0"
+                            Click="LoadMarkdownButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                <Setter Property="Background" Value="#C97728" />
+                                <Setter Property="BorderBrush" Value="#C97728" />
+                                <Setter Property="MinWidth" Value="112" />
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="14,0,0,0"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="Search"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"
+                                   Foreground="{StaticResource MutedTextBrush}" />
+                        <TextBox x:Name="SearchBox"
+                                 Width="220"
+                                 VerticalAlignment="Center"
+                                 TextChanged="SearchBox_TextChanged" />
+                    </StackPanel>
+                </WrapPanel>
+            </Grid>
         </Border>
 
-        <TabControl Grid.Row="1">
+        <Border Grid.Row="1"
+                Style="{StaticResource PanelBorderStyle}"
+                Padding="14">
+        <TabControl>
             <TabItem Header="Direct">
                 <Grid Margin="0,10,0,0">
                     <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
@@ -723,10 +738,9 @@
                                                              Style="{StaticResource ResultTextBoxStyle}"
                                                              Text="{Binding CombinedCopyDeleteMklinkScript, Mode=OneWay}" />
                                                 </Grid>
-                                                <StackPanel Grid.Row="2"
-                                                            Margin="0,10,0,0"
-                                                            Orientation="Horizontal"
-                                                            HorizontalAlignment="Right">
+                    <WrapPanel Grid.Row="2"
+                               Margin="0,10,0,0"
+                               HorizontalAlignment="Right">
                                                     <Button Content="Copy"
                                                             Width="88"
                                                             Click="CopyCombinedDirectScriptButton_Click" />
@@ -738,7 +752,7 @@
                                                             Width="140"
                                                             Margin="8,0,0,0"
                                                             Click="DeleteAndMklinkButton_Click" />
-                                                </StackPanel>
+                    </WrapPanel>
                                             </Grid>
                                         </Border>
                                     </TabItem>
@@ -772,10 +786,9 @@
                                                              Style="{StaticResource ResultTextBoxStyle}"
                                                              Text="{Binding CombinedDeleteAndCopyReverseScript, Mode=OneWay}" />
                                                 </Grid>
-                                                <StackPanel Grid.Row="2"
-                                                            Margin="0,10,0,0"
-                                                            Orientation="Horizontal"
-                                                            HorizontalAlignment="Right">
+                                                <WrapPanel Grid.Row="2"
+                                                           Margin="0,10,0,0"
+                                                           HorizontalAlignment="Right">
                                                     <Button Content="Copy"
                                                             Width="88"
                                                             Click="CopyCombinedReverseScriptButton_Click" />
@@ -783,7 +796,7 @@
                                                             Width="180"
                                                             Margin="8,0,0,0"
                                                             Click="CombinedReverseRunButton_Click" />
-                                                </StackPanel>
+                                                </WrapPanel>
                                             </Grid>
                                         </Border>
                                     </TabItem>
@@ -862,12 +875,26 @@
                 </Grid>
             </TabItem>
         </TabControl>
+        </Border>
 
-        <Button Grid.Row="2"
+        <Border Grid.Row="2"
+                Margin="0,14,0,0"
+                Style="{StaticResource PanelBorderStyle}"
+                Padding="16">
+            <WrapPanel>
+                <StackPanel
+                            Margin="0,0,18,0">
+                    <TextBlock Text="Support the project"
+                               FontSize="16"
+                               FontWeight="SemiBold" />
+                    <TextBlock Margin="0,4,0,0"
+                               Foreground="{StaticResource MutedTextBrush}"
+                               Text="This footer stays readable and anchored even when the window becomes tall and narrow." />
+                </StackPanel>
+
+                <Button
                 Content="Ủng hộ tác giả Ma Minh Toàn 1993"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Margin="0,10,0,0"
+                HorizontalAlignment="Right"
                 MinWidth="320"
                 MinHeight="44"
                 Padding="18,8"
@@ -901,5 +928,7 @@
                 </Style>
             </Button.Style>
         </Button>
+            </WrapPanel>
+        </Border>
     </Grid>
 </Window>
