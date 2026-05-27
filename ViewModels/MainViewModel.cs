@@ -19,20 +19,6 @@ namespace MKLink.ViewModels
         private readonly Stack<MarkdownDocumentState> _undoStack = new Stack<MarkdownDocumentState>();
         private readonly Stack<MarkdownDocumentState> _redoStack = new Stack<MarkdownDocumentState>();
         private bool _isRestoringHistory;
-        private bool _isPortrait;
-
-        public bool IsPortrait
-        {
-            get { return _isPortrait; }
-            set
-            {
-                if (_isPortrait != value)
-                {
-                    _isPortrait = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
         public MainViewModel()
         {
@@ -49,6 +35,7 @@ namespace MKLink.ViewModels
             MklinkTab.RefreshScript();
             CopyReverseTab.RefreshScript();
             DeleteReverseTab.RefreshScript();
+            NotifyCombinedScriptsChanged();
         }
 
         public PathTabViewModel CopyTab { get; private set; }
@@ -60,6 +47,64 @@ namespace MKLink.ViewModels
         public PathTabViewModel CopyReverseTab { get; private set; }
 
         public PathTabViewModel DeleteReverseTab { get; private set; }
+
+        public string CombinedCopyDeleteMklinkScript
+        {
+            get
+            {
+                var builder = new StringBuilder();
+                if (CopyTab != null && !string.IsNullOrWhiteSpace(CopyTab.ScriptResult))
+                {
+                    builder.AppendLine("echo ===== [COPY] =====");
+                    builder.AppendLine(CopyTab.ScriptResult);
+                }
+                if (DeleteTab != null && !string.IsNullOrWhiteSpace(DeleteTab.ScriptResult))
+                {
+                    if (builder.Length > 0) builder.AppendLine();
+                    builder.AppendLine("echo ===== [DELETE] =====");
+                    builder.AppendLine(DeleteTab.ScriptResult);
+                }
+                if (MklinkTab != null && !string.IsNullOrWhiteSpace(MklinkTab.ScriptResult))
+                {
+                    if (builder.Length > 0) builder.AppendLine();
+                    builder.AppendLine("echo ===== [MKLINK D] =====");
+                    builder.AppendLine(MklinkTab.ScriptResult);
+                }
+                return builder.ToString();
+            }
+        }
+
+        public string CombinedDeleteAndCopyReverseScript
+        {
+            get
+            {
+                var builder = new StringBuilder();
+                if (DeleteReverseTab != null && !string.IsNullOrWhiteSpace(DeleteReverseTab.ScriptResult))
+                {
+                    builder.AppendLine("echo ===== [DELETE REVERSE] =====");
+                    builder.AppendLine(DeleteReverseTab.ScriptResult);
+                }
+                if (CopyReverseTab != null && !string.IsNullOrWhiteSpace(CopyReverseTab.ScriptResult))
+                {
+                    if (builder.Length > 0) builder.AppendLine();
+                    builder.AppendLine("echo ===== [COPY REVERSE] =====");
+                    builder.AppendLine(CopyReverseTab.ScriptResult);
+                }
+                if (DeleteReverseTab != null && !string.IsNullOrWhiteSpace(DeleteReverseTab.ScriptResult))
+                {
+                    if (builder.Length > 0) builder.AppendLine();
+                    builder.AppendLine("echo ===== [DELETE REVERSE] =====");
+                    builder.AppendLine(DeleteReverseTab.ScriptResult);
+                }
+                return builder.ToString();
+            }
+        }
+
+        private void NotifyCombinedScriptsChanged()
+        {
+            OnPropertyChanged("CombinedCopyDeleteMklinkScript");
+            OnPropertyChanged("CombinedDeleteAndCopyReverseScript");
+        }
 
         public bool CanUndo
         {
@@ -99,6 +144,7 @@ namespace MKLink.ViewModels
             MklinkTab.RefreshScript();
             CopyReverseTab.RefreshScript();
             DeleteReverseTab.RefreshScript();
+            NotifyCombinedScriptsChanged();
         }
 
         public string ExportMarkdown()
@@ -119,6 +165,7 @@ namespace MKLink.ViewModels
             MklinkTab.RefreshScript();
             CopyReverseTab.RefreshScript();
             DeleteReverseTab.RefreshScript();
+            NotifyCombinedScriptsChanged();
         }
 
         public void CaptureUndoSnapshot()
@@ -189,6 +236,7 @@ namespace MKLink.ViewModels
             MklinkTab.RefreshScript();
             CopyReverseTab.RefreshScript();
             DeleteReverseTab.RefreshScript();
+            NotifyCombinedScriptsChanged();
             OnPropertyChanged("CanUndo");
             OnPropertyChanged("CanRedo");
         }

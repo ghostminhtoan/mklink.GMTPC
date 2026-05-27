@@ -40,7 +40,6 @@ namespace MKLink
             Closing += MainWindow_Closing;
             Closed += MainWindow_Closed;
             Loaded += MainWindow_Loaded;
-            SizeChanged += MainWindow_SizeChanged;
         }
 
         // Quan ly binding UI chinh cua window.
@@ -351,6 +350,36 @@ namespace MKLink
             }
 
             Clipboard.SetText(tab.ScriptResult ?? string.Empty);
+        }
+
+        private void CopyCombinedDirectScriptButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel == null)
+            {
+                return;
+            }
+            Clipboard.SetText(_viewModel.CombinedCopyDeleteMklinkScript ?? string.Empty);
+        }
+
+        private void CopyCombinedReverseScriptButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel == null)
+            {
+                return;
+            }
+            Clipboard.SetText(_viewModel.CombinedDeleteAndCopyReverseScript ?? string.Empty);
+        }
+
+        private void CombinedReverseRunButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel == null)
+            {
+                return;
+            }
+            RunElevatedCommandSequence(
+                _viewModel.DeleteReverseTab.ScriptResult,
+                _viewModel.CopyReverseTab.ScriptResult,
+                _viewModel.DeleteReverseTab.ScriptResult);
         }
 
         private void CopyNormalizedSelectionToClipboard()
@@ -1175,14 +1204,6 @@ namespace MKLink
             _startupPromptShown = true;
             // De dialog sau khi window da render xong, tranh man hinh trang luc khoi dong.
             Dispatcher.BeginInvoke(new Action(ShowStartupPromptSafely), DispatcherPriority.ContextIdle);
-        }
-
-        private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (_viewModel != null)
-            {
-                _viewModel.IsPortrait = (ActualWidth < ActualHeight) || (ActualWidth < 950);
-            }
         }
 
         private void ShowStartupPromptSafely()
