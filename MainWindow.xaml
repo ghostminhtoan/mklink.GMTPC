@@ -1,9 +1,10 @@
-﻿<Window x:Name="mainWindow" x:Class="MKLink.MainWindow"
+<Window x:Name="mainWindow" x:Class="MKLink.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:MKLink.ViewModels"
+        xmlns:local="clr-namespace:MKLink"
         mc:Ignorable="d"
         Title="MKLink Path Mapper"
         Height="820"
@@ -17,11 +18,13 @@
         DragOver="MainWindow_DragOver"
         Drop="MainWindow_Drop">
     <Window.Resources>
+        <local:BindingProxy x:Key="Proxy" Data="{Binding}" />
+
         <!-- Responsive layout styles -->
         <Style x:Key="MainTabRow1Style" TargetType="RowDefinition">
             <Setter Property="Height" Value="0" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding DataContext.IsPortrait, Source={x:Reference mainWindow}}" Value="True">
+                <DataTrigger Binding="{Binding Data.IsPortrait, Source={StaticResource Proxy}}" Value="True">
                     <Setter Property="Height" Value="1.4*" />
                 </DataTrigger>
             </Style.Triggers>
