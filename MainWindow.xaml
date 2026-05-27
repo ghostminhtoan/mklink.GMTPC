@@ -572,8 +572,7 @@
                             <Grid Margin="0,10,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="1.5*" />
-                                    <RowDefinition Height="1.5*" />
+                                    <RowDefinition Height="2.5*" />
                                     <RowDefinition Height="1*" />
                                 </Grid.RowDefinitions>
 
@@ -604,61 +603,69 @@
                                     </StackPanel>
                                 </ToolBar>
 
-                                <Border Grid.Row="1"
-                                        Margin="0,10,0,0"
-                                        Style="{StaticResource PanelBorderStyle}">
-                                    <Grid Margin="10">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="*" />
-                                        </Grid.RowDefinitions>
-                                        <TextBlock Text="INPUT"
-                                                   Style="{StaticResource PanelTitleTextStyle}" />
-                                        <DataGrid x:Name="CopyInputGrid"
-                                                  Grid.Row="1"
-                                                  Margin="0,8,0,0"
-                                                  ItemsSource="{Binding SourceItems}"
-                                                  AutoGenerateColumns="False"
-                                                  SelectionMode="Extended"
-                                                  SelectionUnit="FullRow"
-                                                  CanUserAddRows="False"
-                                                  CanUserDeleteRows="False"
-                                                  AllowDrop="True"
-                                                  SelectionChanged="InputGrid_SelectionChanged"
-                                                  PreviewMouseLeftButtonDown="CopyInputGrid_PreviewMouseLeftButtonDown"
-                                                  PreviewMouseMove="CopyInputGrid_PreviewMouseMove"
-                                                  DragOver="CopyInputGrid_DragOver"
-                                                  Drop="CopyInputGrid_Drop"
-                                                  PreviewKeyDown="CopyInputGrid_PreviewKeyDown">
-                                            <DataGrid.RowStyle>
-                                                <Style TargetType="DataGridRow"
-                                                       BasedOn="{StaticResource DarkDataGridRowStyle}">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
-                                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
-                                                            <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </DataGrid.RowStyle>
-                                            <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Original Input"
-                                                                    Width="2*"
-                                                                    Binding="{Binding OriginalInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                                <DataGridTextColumn Header="Normalized Input"
-                                                                    Width="2*"
-                                                                    IsReadOnly="True"
-                                                                    Binding="{Binding NormalizedInput, Mode=OneWay}" />
-                                            </DataGrid.Columns>
-                                        </DataGrid>
-                                    </Grid>
-                                </Border>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0"
+                                            Margin="0,10,5,0"
+                                            Style="{StaticResource PanelBorderStyle}">
+                                        <Grid Margin="10">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="INPUT"
+                                                       Style="{StaticResource PanelTitleTextStyle}" />
+                                            <DataGrid x:Name="CopyInputGrid"
+                                                      Grid.Row="1"
+                                                      Margin="0,8,0,0"
+                                                      ItemsSource="{Binding SourceItems}"
+                                                      AutoGenerateColumns="False"
+                                                      SelectionMode="Extended"
+                                                      SelectionUnit="FullRow"
+                                                      CanUserAddRows="False"
+                                                      CanUserDeleteRows="False"
+                                                      AllowDrop="True"
+                                                      SelectionChanged="InputGrid_SelectionChanged"
+                                                      PreviewMouseLeftButtonDown="CopyInputGrid_PreviewMouseLeftButtonDown"
+                                                      PreviewMouseMove="CopyInputGrid_PreviewMouseMove"
+                                                      DragOver="CopyInputGrid_DragOver"
+                                                      Drop="CopyInputGrid_Drop"
+                                                      PreviewKeyDown="CopyInputGrid_PreviewKeyDown">
+                                                <DataGrid.RowStyle>
+                                                    <Style TargetType="DataGridRow"
+                                                           BasedOn="{StaticResource DarkDataGridRowStyle}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
+                                                                <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
+                                                                <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataGrid.RowStyle>
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Original Input"
+                                                                        Width="2*"
+                                                                        Binding="{Binding OriginalInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                    <DataGridTextColumn Header="Normalized Input"
+                                                                        Width="2*"
+                                                                        IsReadOnly="True"
+                                                                        Binding="{Binding NormalizedInput, Mode=OneWay}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
+                                    </Border>
+
+                                    <ContentControl Grid.Column="1"
+                                                    Margin="5,10,0,0"
+                                                    Content="{Binding}"
+                                                    ContentTemplate="{StaticResource OutputPanelTemplate}" />
+                                </Grid>
 
                                 <ContentControl Grid.Row="2"
-                                                Content="{Binding}"
-                                                ContentTemplate="{StaticResource OutputPanelTemplate}" />
-
-                                <ContentControl Grid.Row="3"
                                                 Content="{Binding}"
                                                 ContentTemplate="{StaticResource ResultPanelTemplate}" />
                             </Grid>
@@ -693,8 +700,7 @@
                             <Grid Margin="0,10,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="1.5*" />
-                                    <RowDefinition Height="1.5*" />
+                                    <RowDefinition Height="2.5*" />
                                     <RowDefinition Height="1*" />
                                 </Grid.RowDefinitions>
 
@@ -705,15 +711,24 @@
                                                Text="MKLINK D phu thuoc Tab COPY: input va output mirror y chang Copy." />
                                 </Border>
 
-                                <ContentControl Grid.Row="1"
-                                                Content="{Binding}"
-                                                ContentTemplate="{StaticResource InputPanelTemplate}" />
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <ContentControl Grid.Column="0"
+                                                    Margin="0,0,5,0"
+                                                    Content="{Binding}"
+                                                    ContentTemplate="{StaticResource InputPanelTemplate}" />
+
+                                    <ContentControl Grid.Column="1"
+                                                    Margin="5,0,0,0"
+                                                    Content="{Binding}"
+                                                    ContentTemplate="{StaticResource OutputPanelTemplate}" />
+                                </Grid>
 
                                 <ContentControl Grid.Row="2"
-                                                Content="{Binding}"
-                                                ContentTemplate="{StaticResource OutputPanelTemplate}" />
-
-                                <ContentControl Grid.Row="3"
                                                 Content="{Binding}"
                                                 ContentTemplate="{StaticResource ResultPanelTemplate}" />
                             </Grid>
@@ -732,8 +747,7 @@
                             <Grid Margin="0,10,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="1.5*" />
-                                    <RowDefinition Height="1.5*" />
+                                    <RowDefinition Height="2.5*" />
                                     <RowDefinition Height="1*" />
                                 </Grid.RowDefinitions>
 
@@ -744,15 +758,24 @@
                                                Text="Copy reverse mirror Tab COPY, but uses xcopy in the opposite direction. It is not part of the elevated batch actions." />
                                 </Border>
 
-                                <ContentControl Grid.Row="1"
-                                                Content="{Binding}"
-                                                ContentTemplate="{StaticResource InputPanelTemplate}" />
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <ContentControl Grid.Column="0"
+                                                    Margin="0,0,5,0"
+                                                    Content="{Binding}"
+                                                    ContentTemplate="{StaticResource InputPanelTemplate}" />
+
+                                    <ContentControl Grid.Column="1"
+                                                    Margin="5,0,0,0"
+                                                    Content="{Binding}"
+                                                    ContentTemplate="{StaticResource OutputPanelTemplate}" />
+                                </Grid>
 
                                 <ContentControl Grid.Row="2"
-                                                Content="{Binding}"
-                                                ContentTemplate="{StaticResource OutputPanelTemplate}" />
-
-                                <ContentControl Grid.Row="3"
                                                 Content="{Binding}"
                                                 ContentTemplate="{StaticResource ReverseResultPanelTemplate}" />
                             </Grid>
@@ -762,8 +785,7 @@
                             <Grid Margin="0,10,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="1.5*" />
-                                    <RowDefinition Height="1.5*" />
+                                    <RowDefinition Height="2.5*" />
                                     <RowDefinition Height="1*" />
                                 </Grid.RowDefinitions>
 
@@ -774,15 +796,24 @@
                                                Text="Delete reverse mirror Tab COPY, but deletes the mapped output path instead of the input path." />
                                 </Border>
 
-                                <ContentControl Grid.Row="1"
-                                                Content="{Binding}"
-                                                ContentTemplate="{StaticResource InputPanelTemplate}" />
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <ContentControl Grid.Column="0"
+                                                    Margin="0,0,5,0"
+                                                    Content="{Binding}"
+                                                    ContentTemplate="{StaticResource InputPanelTemplate}" />
+
+                                    <ContentControl Grid.Column="1"
+                                                    Margin="5,0,0,0"
+                                                    Content="{Binding}"
+                                                    ContentTemplate="{StaticResource OutputPanelTemplate}" />
+                                </Grid>
 
                                 <ContentControl Grid.Row="2"
-                                                Content="{Binding}"
-                                                ContentTemplate="{StaticResource OutputPanelTemplate}" />
-
-                                <ContentControl Grid.Row="3"
                                                 Content="{Binding}"
                                                 ContentTemplate="{StaticResource ReverseResultPanelTemplate}" />
                             </Grid>
