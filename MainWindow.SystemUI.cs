@@ -709,6 +709,70 @@ namespace MKLink
             }
         }
 
+        private static T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null)
+            {
+                return null;
+            }
+            foreach (T child in FindVisualChildren<T>(parent))
+            {
+                return child;
+            }
+            return null;
+        }
+
+        private bool _isSyncingScroll = false;
+
+        private void DataGrid_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (_isSyncingScroll)
+            {
+                return;
+            }
+
+            var sourceGrid = sender as DataGrid;
+            if (sourceGrid == null || e.VerticalChange == 0)
+            {
+                return;
+            }
+
+            var scrollViewer = e.OriginalSource as ScrollViewer;
+            if (scrollViewer == null)
+            {
+                return;
+            }
+
+            List<DataGrid> linkedGrids = FindLinkedDataGrids(sourceGrid);
+            if (linkedGrids.Count == 0)
+            {
+                return;
+            }
+
+            _isSyncingScroll = true;
+            try
+            {
+                for (int i = 0; i < linkedGrids.Count; i++)
+                {
+                    DataGrid targetGrid = linkedGrids[i];
+                    if (targetGrid == null || ReferenceEquals(targetGrid, sourceGrid))
+                    {
+                        continue;
+                    }
+
+                    ScrollViewer targetViewer = FindVisualChild<ScrollViewer>(targetGrid);
+                    if (targetViewer != null)
+                    {
+                        targetViewer.ScrollToVerticalOffset(e.VerticalOffset);
+                    }
+                }
+            }
+            finally
+            {
+                _isSyncingScroll = false;
+            }
+        }
+
         private IEnumerable<MklinkCheckEntry> BuildMklinkCheckEntries()
         {
             var entries = new List<MklinkCheckEntry>();
