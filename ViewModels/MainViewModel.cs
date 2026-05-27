@@ -1508,7 +1508,8 @@ namespace MKLink.ViewModels
             {
                 return string.Empty;
             }
-            string result = path.Replace("\\", "\\<wbr>").Replace("/", "/<wbr>");
+            // In Markdown, a backslash before '<' escapes it. To prevent this, we write double backslashes (\\<wbr>).
+            string result = path.Replace("\\", "\\\\<wbr>").Replace("/", "/<wbr>");
             return EscapePipe(result);
         }
 
@@ -1518,12 +1519,19 @@ namespace MKLink.ViewModels
             {
                 return string.Empty;
             }
-            return path
+            string cleaned = path
                 .Replace("<wbr>", "")
                 .Replace("<wbr />", "")
                 .Replace("<WBR>", "")
                 .Replace("<WBR />", "")
                 .Replace("&#8203;", "");
+
+            // Clean up double backslashes (preserving UNC paths starting with \\)
+            if (cleaned.StartsWith("\\\\"))
+            {
+                return "\\\\" + cleaned.Substring(2).Replace("\\\\", "\\");
+            }
+            return cleaned.Replace("\\\\", "\\");
         }
 
         public static string Serialize(MainViewModel viewModel)
@@ -1535,6 +1543,17 @@ namespace MKLink.ViewModels
 
             var builder = new StringBuilder();
             builder.AppendLine(Heading);
+            builder.AppendLine();
+            builder.AppendLine("<style>");
+            builder.AppendLine("  table {");
+            builder.AppendLine("    width: 100%;");
+            builder.AppendLine("    table-layout: fixed;");
+            builder.AppendLine("  }");
+            builder.AppendLine("  td, th {");
+            builder.AppendLine("    word-break: break-all;");
+            builder.AppendLine("    word-wrap: break-word;");
+            builder.AppendLine("  }");
+            builder.AppendLine("</style>");
             builder.AppendLine();
             builder.AppendLine("- SelectedRootFolder: " + viewModel.CopyTab.SelectedRootFolder);
             builder.AppendLine("- SubfolderName: " + viewModel.CopyTab.SubfolderName);
