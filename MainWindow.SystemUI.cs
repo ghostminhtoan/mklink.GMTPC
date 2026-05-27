@@ -28,6 +28,7 @@ namespace MKLink
         private readonly List<Process> _launchedProcesses = new List<Process>();
         private bool _isClosing;
         private bool _isSyncingLinkedSelection;
+        private string _currentMarkdownFilePath;
 
         public MainWindow()
         {
@@ -204,38 +205,84 @@ namespace MKLink
                 return;
             }
 
-            using (var dialog = new Forms.SaveFileDialog())
+            bool showSaveDialog = false;
+
+            if (!string.IsNullOrWhiteSpace(_currentMarkdownFilePath))
             {
-                dialog.Filter = "Markdown files (*.md)|*.md|All files (*.*)|*.*";
-                dialog.DefaultExt = "md";
-                dialog.AddExtension = true;
-                dialog.FileName = "mklink.md";
-
-                string initialDir = GetLastSavedMdFolder();
-                if (!string.IsNullOrWhiteSpace(initialDir))
+                var confirmDialog = new SaveConfirmDialog(_currentMarkdownFilePath)
                 {
-                    dialog.InitialDirectory = initialDir;
-                }
+                    Owner = this
+                };
 
-                if (dialog.ShowDialog() != Forms.DialogResult.OK)
+                if (confirmDialog.ShowDialog() == true)
+                {
+                    if (confirmDialog.Action == SaveAction.Overwrite)
+                    {
+                        try
+                        {
+                            File.WriteAllText(_currentMarkdownFilePath, _viewModel.ExportMarkdown());
+                            SaveLastSavedMdFolder(_currentMarkdownFilePath);
+                            return;
+                        }
+                        catch (IOException ex)
+                        {
+                            MessageBox.Show(ex.Message, "Save failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                    }
+                    else if (confirmDialog.Action == SaveAction.SaveAs)
+                    {
+                        showSaveDialog = true;
+                    }
+                }
+                else
                 {
                     return;
                 }
+            }
+            else
+            {
+                showSaveDialog = true;
+            }
 
-                string path = dialog.FileName;
-                if (Path.GetExtension(path).Length == 0)
+            if (showSaveDialog)
+            {
+                using (var dialog = new Forms.SaveFileDialog())
                 {
-                    path += ".md";
-                }
+                    dialog.Filter = "Markdown files (*.md)|*.md|All files (*.*)|*.*";
+                    dialog.DefaultExt = "md";
+                    dialog.AddExtension = true;
+                    dialog.FileName = string.IsNullOrWhiteSpace(_currentMarkdownFilePath) 
+                        ? "mklink.md" 
+                        : Path.GetFileName(_currentMarkdownFilePath);
 
-                try
-                {
-                    File.WriteAllText(path, _viewModel.ExportMarkdown());
-                    SaveLastSavedMdFolder(path);
-                }
-                catch (IOException ex)
-                {
-                    MessageBox.Show(ex.Message, "Save failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    string initialDir = GetLastSavedMdFolder();
+                    if (!string.IsNullOrWhiteSpace(initialDir))
+                    {
+                        dialog.InitialDirectory = initialDir;
+                    }
+
+                    if (dialog.ShowDialog() != Forms.DialogResult.OK)
+                    {
+                        return;
+                    }
+
+                    string path = dialog.FileName;
+                    if (Path.GetExtension(path).Length == 0)
+                    {
+                        path += ".md";
+                    }
+
+                    try
+                    {
+                        File.WriteAllText(path, _viewModel.ExportMarkdown());
+                        _currentMarkdownFilePath = path;
+                        SaveLastSavedMdFolder(path);
+                    }
+                    catch (IOException ex)
+                    {
+                        MessageBox.Show(ex.Message, "Save failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }
@@ -268,6 +315,7 @@ namespace MKLink
                 {
                     string markdown = File.ReadAllText(dialog.FileName);
                     _viewModel.ImportMarkdown(markdown);
+                    _currentMarkdownFilePath = dialog.FileName;
                     SaveLastSavedMdFolder(dialog.FileName);
                 }
                 catch (IOException ex)

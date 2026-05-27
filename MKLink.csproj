@@ -71,6 +71,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="SaveConfirmDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -97,6 +101,9 @@
     </Compile>
     <Compile Include="MainWindow.TabReverse.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SaveConfirmDialog.xaml.cs">
+      <DependentUpon>SaveConfirmDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\PathItem.cs" />
     <Compile Include="Models\MklinkCheckEntry.cs" />

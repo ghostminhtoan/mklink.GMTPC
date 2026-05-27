@@ -148,247 +148,159 @@
         </Style>
 
         <DataTemplate x:Key="InputPanelTemplate">
-            <Grid Margin="0,10,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <Border Margin="0,0,5,0"
-                        Style="{StaticResource PanelBorderStyle}">
-                    <Grid Margin="10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="INPUT"
-                                   Style="{StaticResource PanelTitleTextStyle}" />
-                        <DataGrid Grid.Row="1"
-                                  Margin="0,8,0,0"
-                                  ItemsSource="{Binding SourceItems}"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  CanUserDeleteRows="{Binding CanEditRows}"
-                                  IsReadOnly="{Binding IsMirrorTab}"
-                                  SelectionChanged="InputGrid_SelectionChanged"
-                                  ScrollViewer.ScrollChanged="DataGrid_ScrollChanged">
-                            <DataGrid.RowStyle>
-                                <Style TargetType="DataGridRow"
-                                       BasedOn="{StaticResource DarkDataGridRowStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
-                                            <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGrid.RowStyle>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Original Input"
-                                                    Width="*"
-                                                    Binding="{Binding OriginalInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    ElementStyle="{StaticResource WrapTextBlockStyle}"
-                                                    EditingElementStyle="{StaticResource WrapTextBoxStyle}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </Grid>
-                </Border>
-
-                <Border Grid.Column="1"
-                        Margin="5,0,0,0"
-                        Style="{StaticResource PanelBorderStyle}">
-                    <Grid Margin="10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="NORMALIZE INPUT"
-                                   Style="{StaticResource PanelTitleTextStyle}" />
-                        <DataGrid Grid.Row="1"
-                                  Margin="0,8,0,0"
-                                  ItemsSource="{Binding SourceItems}"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  CanUserDeleteRows="False"
-                                  IsReadOnly="True"
-                                  SelectionChanged="InputGrid_SelectionChanged"
-                                  ScrollViewer.ScrollChanged="DataGrid_ScrollChanged">
-                            <DataGrid.RowStyle>
-                                <Style TargetType="DataGridRow"
-                                       BasedOn="{StaticResource DarkDataGridRowStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
-                                            <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGrid.RowStyle>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Normalized Input"
-                                                    Width="*"
-                                                    IsReadOnly="True"
-                                                    Binding="{Binding NormalizedInput, Mode=OneWay}"
-                                                    ElementStyle="{StaticResource WrapTextBlockStyle}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </Grid>
-                </Border>
-            </Grid>
+            <Border Margin="0,10,0,0"
+                    Style="{StaticResource PanelBorderStyle}">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="INPUT"
+                               Style="{StaticResource PanelTitleTextStyle}" />
+                    <DataGrid Grid.Row="1"
+                              Margin="0,8,0,0"
+                              ItemsSource="{Binding SourceItems}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="{Binding CanEditRows}"
+                              IsReadOnly="{Binding IsMirrorTab}"
+                              SelectionChanged="InputGrid_SelectionChanged">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow"
+                                   BasedOn="{StaticResource DarkDataGridRowStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
+                                        <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Input"
+                                                Width="*"
+                                                Binding="{Binding OriginalInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                ElementStyle="{StaticResource WrapTextBlockStyle}"
+                                                EditingElementStyle="{StaticResource WrapTextBoxStyle}" />
+                            <DataGridTextColumn Header="Normalize Input"
+                                                Width="*"
+                                                IsReadOnly="True"
+                                                Binding="{Binding NormalizedInput, Mode=OneWay}"
+                                                ElementStyle="{StaticResource WrapTextBlockStyle}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
         </DataTemplate>
 
         <DataTemplate x:Key="OutputPanelTemplate">
-            <Grid Margin="0,10,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <Border Margin="0,0,5,0"
-                        Style="{StaticResource PanelBorderStyle}">
-                    <Grid Margin="10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="OUTPUT"
-                                   Style="{StaticResource PanelTitleTextStyle}" />
-                        <DataGrid Grid.Row="1"
-                                  Margin="0,8,0,0"
-                                  ItemsSource="{Binding SourceItems}"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  CanUserDeleteRows="False"
-                                  IsReadOnly="True"
-                                  SelectionChanged="InputGrid_SelectionChanged"
-                                  ScrollViewer.ScrollChanged="DataGrid_ScrollChanged">
-                            <DataGrid.RowStyle>
-                                <Style TargetType="DataGridRow"
-                                       BasedOn="{StaticResource DarkDataGridRowStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
-                                            <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGrid.RowStyle>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Mapped Target"
-                                                    Width="*"
-                                                    Binding="{Binding EffectiveOutputPath, Mode=OneWay}"
-                                                    ElementStyle="{StaticResource WrapTextBlockStyle}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </Grid>
-                </Border>
-
-                <Border Grid.Column="1"
-                        Margin="5,0,0,0"
-                        Style="{StaticResource PanelBorderStyle}">
-                    <Grid Margin="10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="EDIT OUTPUT"
-                                   Style="{StaticResource PanelTitleTextStyle}" />
-                        <DataGrid Grid.Row="1"
-                                  Margin="0,8,0,0"
-                                  ItemsSource="{Binding SourceItems}"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  CanUserDeleteRows="False"
-                                  IsReadOnly="True"
-                                  SelectionChanged="InputGrid_SelectionChanged"
-                                  ScrollViewer.ScrollChanged="DataGrid_ScrollChanged"
-                                  Loaded="EditOutputGrid_Loaded">
-                            <DataGrid.RowStyle>
-                                <Style TargetType="DataGridRow"
-                                       BasedOn="{StaticResource DarkDataGridRowStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
-                                            <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGrid.RowStyle>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Edit Output"
-                                                    Width="*"
-                                                    Binding="{Binding EffectiveOutputPath, Mode=OneWay}"
-                                                    ElementStyle="{StaticResource EditedTextBlockStyle}" />
-                                <DataGridTemplateColumn Header="Filter"
-                                                        Width="90">
-                                    <DataGridTemplateColumn.HeaderTemplate>
-                                        <DataTemplate>
-                                            <Button Content="Filter"
-                                                    Padding="4,0"
-                                                    MinWidth="70"
-                                                    Click="EditOutputFilterHeaderButton_Click" />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.HeaderTemplate>
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding EditOutputStateText}"
-                                                       HorizontalAlignment="Center"
-                                                       Foreground="{StaticResource MutedTextBrush}" />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Actions"
-                                                        Width="Auto">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="{StaticResource BorderBrushDark}"
-                                                    BorderThickness="1"
-                                                    CornerRadius="4"
-                                                    Padding="3"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center">
-                                                <StackPanel>
-                                                    <Button Content="Edit"
-                                                            Click="EditOutputButton_Click"
-                                                            MinWidth="76"
-                                                            Height="22"
-                                                            FontSize="11"
-                                                            Margin="0,0,0,3">
-                                                        <Button.Style>
-                                                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
-                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Button.Style>
-                                                    </Button>
-                                                    <Button Content="Restore default"
-                                                            Click="RestoreDefaultOutputButton_Click"
-                                                            MinWidth="76"
-                                                            Height="22"
-                                                            FontSize="10">
-                                                        <Button.Style>
-                                                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
-                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Button.Style>
-                                                    </Button>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </Grid>
-                </Border>
-            </Grid>
+            <Border Margin="0,10,0,0"
+                    Style="{StaticResource PanelBorderStyle}">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="OUTPUT"
+                               Style="{StaticResource PanelTitleTextStyle}" />
+                    <DataGrid Grid.Row="1"
+                              Margin="0,8,0,0"
+                              ItemsSource="{Binding SourceItems}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              IsReadOnly="True"
+                              SelectionChanged="InputGrid_SelectionChanged"
+                              Loaded="EditOutputGrid_Loaded">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow"
+                                   BasedOn="{StaticResource DarkDataGridRowStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
+                                        <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Output"
+                                                Width="*"
+                                                Binding="{Binding MappedTarget, Mode=OneWay}"
+                                                ElementStyle="{StaticResource WrapTextBlockStyle}" />
+                            <DataGridTextColumn Header="Edit Output"
+                                                Width="*"
+                                                Binding="{Binding EffectiveOutputPath, Mode=OneWay}"
+                                                ElementStyle="{StaticResource EditedTextBlockStyle}" />
+                            <DataGridTemplateColumn Header="Filter"
+                                                    Width="90">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Filter"
+                                                Padding="4,0"
+                                                MinWidth="70"
+                                                Click="EditOutputFilterHeaderButton_Click" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding EditOutputStateText}"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{StaticResource MutedTextBrush}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Actions"
+                                                    Width="Auto">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{StaticResource BorderBrushDark}"
+                                                BorderThickness="1"
+                                                CornerRadius="4"
+                                                Padding="3"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center">
+                                            <StackPanel>
+                                                <Button Content="Edit"
+                                                        Click="EditOutputButton_Click"
+                                                        MinWidth="76"
+                                                        Height="22"
+                                                        FontSize="11"
+                                                        Margin="0,0,0,3">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                                <Button Content="Restore default"
+                                                        Click="RestoreDefaultOutputButton_Click"
+                                                        MinWidth="76"
+                                                        Height="22"
+                                                        FontSize="10">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
         </DataTemplate>
 
         <DataTemplate x:Key="ResultPanelTemplate">
@@ -664,13 +576,10 @@
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
 
-                                    <Border Grid.Row="0" Grid.Column="0"
-                                            Margin="0,10,5,0"
+                                    <!-- Row 0: INPUT panel -->
+                                    <Border Grid.Row="0"
+                                            Margin="0,10,0,0"
                                             Style="{StaticResource PanelBorderStyle}">
                                         <Grid Margin="10">
                                             <Grid.RowDefinitions>
@@ -690,7 +599,6 @@
                                                       CanUserDeleteRows="False"
                                                       AllowDrop="True"
                                                       SelectionChanged="InputGrid_SelectionChanged"
-                                                      ScrollViewer.ScrollChanged="DataGrid_ScrollChanged"
                                                       PreviewMouseLeftButtonDown="CopyInputGrid_PreviewMouseLeftButtonDown"
                                                       PreviewMouseMove="CopyInputGrid_PreviewMouseMove"
                                                       DragOver="CopyInputGrid_DragOver"
@@ -708,50 +616,12 @@
                                                     </Style>
                                                 </DataGrid.RowStyle>
                                                 <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="Original Input"
+                                                    <DataGridTextColumn Header="Input"
                                                                         Width="*"
                                                                         Binding="{Binding OriginalInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                         ElementStyle="{StaticResource WrapTextBlockStyle}"
                                                                         EditingElementStyle="{StaticResource WrapTextBoxStyle}" />
-                                                </DataGrid.Columns>
-                                            </DataGrid>
-                                        </Grid>
-                                    </Border>
-
-                                    <Border Grid.Row="0" Grid.Column="1"
-                                            Margin="5,10,0,0"
-                                            Style="{StaticResource PanelBorderStyle}">
-                                        <Grid Margin="10">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="*" />
-                                            </Grid.RowDefinitions>
-                                            <TextBlock Text="NORMALIZE INPUT"
-                                                       Style="{StaticResource PanelTitleTextStyle}" />
-                                            <DataGrid Grid.Row="1"
-                                                      Margin="0,8,0,0"
-                                                      ItemsSource="{Binding SourceItems}"
-                                                      AutoGenerateColumns="False"
-                                                      SelectionMode="Extended"
-                                                      SelectionUnit="FullRow"
-                                                      CanUserAddRows="False"
-                                                      CanUserDeleteRows="False"
-                                                      IsReadOnly="True"
-                                                      SelectionChanged="InputGrid_SelectionChanged"
-                                                      ScrollViewer.ScrollChanged="DataGrid_ScrollChanged">
-                                                <DataGrid.RowStyle>
-                                                    <Style TargetType="DataGridRow"
-                                                           BasedOn="{StaticResource DarkDataGridRowStyle}">
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding ShowValidationError}" Value="True">
-                                                                <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
-                                                                <Setter Property="ToolTip" Value="{Binding ErrorMessage}" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </DataGrid.RowStyle>
-                                                <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="Normalized Input"
+                                                    <DataGridTextColumn Header="Normalize Input"
                                                                         Width="*"
                                                                         IsReadOnly="True"
                                                                         Binding="{Binding NormalizedInput, Mode=OneWay}"
@@ -761,7 +631,8 @@
                                         </Grid>
                                     </Border>
 
-                                    <ContentControl Grid.Row="1" Grid.ColumnSpan="2"
+                                    <!-- Row 1: OUTPUT panel -->
+                                    <ContentControl Grid.Row="1"
                                                     Content="{Binding}"
                                                     ContentTemplate="{StaticResource OutputPanelTemplate}" />
                                 </Grid>
