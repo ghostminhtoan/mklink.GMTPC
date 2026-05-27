@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Input;
 using System.Windows;
 using System.Windows.Threading;
+using System.Linq;
 using MKLink.Models;
 
 namespace MKLink.ViewModels
@@ -1540,22 +1541,42 @@ namespace MKLink.ViewModels
             builder.AppendLine("- RootTargetPath: " + viewModel.CopyTab.RootTargetPath);
             builder.AppendLine("- IsWordWrapEnabled: " + viewModel.IsWordWrapEnabled);
             builder.AppendLine();
-            builder.AppendLine("## COPY ROWS");
-            builder.AppendLine();
-            builder.AppendLine("| Original Input | Normalized Input | Mapped Target | Edit Output Path |");
-            builder.AppendLine("| --- | --- | --- | --- |");
 
+            var validItems = new List<PathItem>();
             for (int i = 0; i < viewModel.CopyTab.SourceItems.Count; i++)
             {
                 PathItem item = viewModel.CopyTab.SourceItems[i];
                 if (item != null && !item.IsPlaceholder && !string.IsNullOrWhiteSpace(item.OriginalInput))
                 {
-                    builder.AppendLine(string.Format("| {0} | {1} | {2} | {3} |",
-                        FormatPathForTable(item.OriginalInput),
-                        FormatPathForTable(item.NormalizedInput),
-                        FormatPathForTable(item.MappedTarget),
-                        FormatPathForTable(item.EditOutputPath)));
+                    validItems.Add(item);
                 }
+            }
+
+            var sortedItems = validItems.OrderByDescending(item => !string.IsNullOrWhiteSpace(item.EditOutputPath)).ToList();
+
+            builder.AppendLine("## INPUT");
+            builder.AppendLine();
+            builder.AppendLine("| Input | Normalize Input |");
+            builder.AppendLine("| --- | --- |");
+            for (int i = 0; i < sortedItems.Count; i++)
+            {
+                PathItem item = sortedItems[i];
+                builder.AppendLine(string.Format("| {0} | {1} |",
+                    FormatPathForTable(item.OriginalInput),
+                    FormatPathForTable(item.NormalizedInput)));
+            }
+            builder.AppendLine();
+
+            builder.AppendLine("## OUTPUT");
+            builder.AppendLine();
+            builder.AppendLine("| Output | Edit Output |");
+            builder.AppendLine("| --- | --- |");
+            for (int i = 0; i < sortedItems.Count; i++)
+            {
+                PathItem item = sortedItems[i];
+                builder.AppendLine(string.Format("| {0} | {1} |",
+                    FormatPathForTable(item.MappedTarget),
+                    FormatPathForTable(item.EditOutputPath)));
             }
 
             return builder.ToString();
@@ -1574,11 +1595,17 @@ namespace MKLink.ViewModels
                 return state;
             }
 
+            var inputRows = new List<Tuple<string, string>>();
+            var outputRows = new List<Tuple<string, string>>();
+
             using (var reader = new StringReader(markdown))
             {
                 string line;
                 bool inCodeBlock = false;
                 bool inRowBlock = false;
+                bool inInputBlock = false;
+                bool inOutputBlock = false;
+
                 while ((line = reader.ReadLine()) != null)
                 {
                     string trimmed = line.Trim();
@@ -1609,6 +1636,24 @@ namespace MKLink.ViewModels
                     if (trimmed == "## COPY ROWS")
                     {
                         inRowBlock = true;
+                        inInputBlock = false;
+                        inOutputBlock = false;
+                        continue;
+                    }
+
+                    if (trimmed == "## INPUT")
+                    {
+                        inRowBlock = false;
+                        inInputBlock = true;
+                        inOutputBlock = false;
+                        continue;
+                    }
+
+                    if (trimmed == "## OUTPUT")
+                    {
+                        inRowBlock = false;
+                        inInputBlock = false;
+                        inOutputBlock = true;
                         continue;
                     }
 
@@ -1647,9 +1692,12 @@ namespace MKLink.ViewModels
                         continue;
                     }
 
-                    if (inRowBlock && trimmed.StartsWith("|") && trimmed.EndsWith("|"))
+                    if (trimmed.StartsWith("|") && trimmed.EndsWith("|"))
                     {
-                        if (trimmed.IndexOf("Original Input", StringComparison.OrdinalIgnoreCase) >= 0 || trimmed.IndexOf("---") >= 0)
+                        if (trimmed.IndexOf("Input", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            trimmed.IndexOf("Output", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            trimmed.IndexOf("Original Input", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            trimmed.IndexOf("---") >= 0)
                         {
                             continue;
                         }
@@ -1657,24 +1705,63 @@ namespace MKLink.ViewModels
                         string temp = trimmed.Replace("\\|", "\x01");
                         string[] rawParts = temp.Split('|');
 
-                        if (rawParts.Length >= 5)
+                        if (inRowBlock)
                         {
-                            var parts = new List<string>();
-                            for (int i = 1; i < rawParts.Length - 1; i++)
+                            if (rawParts.Length >= 5)
                             {
-                                string val = rawParts[i].Trim().Replace("\x01", "|");
-                                parts.Add(CleanTablePath(val));
-                            }
+                                var parts = new List<string>();
+                                for (int i = 1; i < rawParts.Length - 1; i++)
+                                {
+                                    string val = rawParts[i].Trim().Replace("\x01", "|");
+                                    parts.Add(CleanTablePath(val));
+                                }
 
-                            state.PathRows.Add(new MarkdownPathRowState
+                                state.PathRows.Add(new MarkdownPathRowState
+                                {
+                                    OriginalInput = parts.Count > 0 ? parts[0] : string.Empty,
+                                    NormalizedInput = parts.Count > 1 ? parts[1] : string.Empty,
+                                    OutputPath = parts.Count > 2 ? parts[2] : string.Empty,
+                                    EditOutputPath = parts.Count > 3 ? parts[3] : string.Empty
+                                });
+                            }
+                        }
+                        else if (inInputBlock)
+                        {
+                            if (rawParts.Length >= 3)
                             {
-                                OriginalInput = parts.Count > 0 ? parts[0] : string.Empty,
-                                NormalizedInput = parts.Count > 1 ? parts[1] : string.Empty,
-                                OutputPath = parts.Count > 2 ? parts[2] : string.Empty,
-                                EditOutputPath = parts.Count > 3 ? parts[3] : string.Empty
-                            });
+                                string originalInput = CleanTablePath(rawParts[1].Trim().Replace("\x01", "|"));
+                                string normalizedInput = CleanTablePath(rawParts[2].Trim().Replace("\x01", "|"));
+                                inputRows.Add(Tuple.Create(originalInput, normalizedInput));
+                            }
+                        }
+                        else if (inOutputBlock)
+                        {
+                            if (rawParts.Length >= 3)
+                            {
+                                string outputPath = CleanTablePath(rawParts[1].Trim().Replace("\x01", "|"));
+                                string editOutputPath = CleanTablePath(rawParts[2].Trim().Replace("\x01", "|"));
+                                outputRows.Add(Tuple.Create(outputPath, editOutputPath));
+                            }
                         }
                     }
+                }
+            }
+
+            if (inputRows.Count > 0 || outputRows.Count > 0)
+            {
+                int count = Math.Max(inputRows.Count, outputRows.Count);
+                for (int i = 0; i < count; i++)
+                {
+                    var inputRow = i < inputRows.Count ? inputRows[i] : Tuple.Create(string.Empty, string.Empty);
+                    var outputRow = i < outputRows.Count ? outputRows[i] : Tuple.Create(string.Empty, string.Empty);
+
+                    state.PathRows.Add(new MarkdownPathRowState
+                    {
+                        OriginalInput = inputRow.Item1,
+                        NormalizedInput = inputRow.Item2,
+                        OutputPath = outputRow.Item1,
+                        EditOutputPath = outputRow.Item2
+                    });
                 }
             }
 
