@@ -544,32 +544,42 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <ToolBar Grid.Row="0">
-                                    <Button Content="Browse Root Folder"
-                                            IsEnabled="{Binding CanEditRows}"
-                                            Click="BrowseRootFolderButton_Click" />
-                                    <Separator />
-                                    <TextBlock Text="Subfolder Name"
-                                               VerticalAlignment="Center"
-                                               Margin="8,0,6,0"
-                                               Foreground="{StaticResource MutedTextBrush}" />
-                                    <TextBox Width="180"
-                                             IsReadOnly="{Binding IsMirrorTab}"
-                                             Text="{Binding SubfolderName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                    <Button Content="Apply Target"
-                                            Margin="8,0,0,0"
-                                            Command="{Binding ApplyTargetCommand}" />
-                                    <Separator />
-                                    <StackPanel Orientation="Vertical"
-                                                Margin="8,0,0,0"
-                                                VerticalAlignment="Center">
-                                        <TextBlock Foreground="{StaticResource MutedTextBrush}"
-                                                   Text="{Binding RootTargetPath, StringFormat=Target root: {0}}" />
-                                        <TextBlock Margin="0,2,0,0"
-                                                   Foreground="{StaticResource MutedTextBrush}"
-                                                   Text="Each source path will create its own subfolder under this target." />
-                                    </StackPanel>
-                                </ToolBar>
+                                <Border Grid.Row="0"
+                                        Style="{StaticResource PanelBorderStyle}"
+                                        Padding="12,8">
+                                    <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Content="Browse Root Folder"
+                                                IsEnabled="{Binding CanEditRows}"
+                                                Click="BrowseRootFolderButton_Click"
+                                                Margin="0,4,12,4" />
+                                        
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,12,4">
+                                            <TextBlock Text="Subfolder Name"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,6,0"
+                                                       Foreground="{StaticResource MutedTextBrush}" />
+                                            <TextBox Width="180"
+                                                     VerticalContentAlignment="Center"
+                                                     IsReadOnly="{Binding IsMirrorTab}"
+                                                     Text="{Binding SubfolderName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <Button Content="Apply Target"
+                                                    Margin="8,0,0,0"
+                                                    Command="{Binding ApplyTargetCommand}" />
+                                        </StackPanel>
+                                        
+                                        <StackPanel Orientation="Vertical"
+                                                    Margin="12,4,0,4"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Foreground="{StaticResource MutedTextBrush}"
+                                                       FontWeight="SemiBold"
+                                                       Text="{Binding RootTargetPath, StringFormat=Target root: {0}}" />
+                                            <TextBlock Margin="0,2,0,0"
+                                                       FontSize="11"
+                                                       Foreground="{StaticResource MutedTextBrush}"
+                                                       Text="Each source path will create its own subfolder under this target." />
+                                        </StackPanel>
+                                    </WrapPanel>
+                                </Border>
 
                                 <Grid Grid.Row="1">
                                     <Grid.RowDefinitions>
