@@ -288,6 +288,14 @@
             <Setter Property="Margin" Value="0,0,6,0" />
         </Style>
 
+        <Style x:Key="SidebarEdgeHandleStyle" TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="72" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Opacity" Value="0.92" />
+        </Style>
+
         <Style x:Key="MainTabControlHiddenHeaderStyle" TargetType="TabControl" BasedOn="{StaticResource {x:Type TabControl}}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -1062,39 +1070,38 @@
                         Grid.Column="1"
                         Margin="8,0,0,0"
                         Style="{StaticResource PanelBorderStyle}"
-                        Padding="8">
-                    <Grid x:Name="SidebarRootGrid">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
+                        Padding="8"
+                        MouseEnter="SidebarBorder_MouseEnter"
+                        MouseLeave="SidebarBorder_MouseLeave">
+                    <Grid>
+                        <Grid x:Name="SidebarRootGrid">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
 
-                        <Border Grid.Row="0"
-                                Style="{StaticResource PanelBorderStyle}"
-                                Padding="6"
-                                Margin="0,0,0,8">
-                            <WrapPanel HorizontalAlignment="Center">
-                                <Button x:Name="SidebarMoveButton"
-                                        Style="{StaticResource SidebarChromeButtonStyle}"
-                                        Click="SidebarMoveButton_Click"
-                                        ToolTip="Move sidebar" />
-                                <Button x:Name="SidebarPinButton"
-                                        Style="{StaticResource SidebarChromeButtonStyle}"
-                                        Click="SidebarPinButton_Click"
-                                        ToolTip="Pin sidebar" />
-                            </WrapPanel>
-                        </Border>
+                            <Border Grid.Row="0"
+                                    Style="{StaticResource PanelBorderStyle}"
+                                    Padding="6"
+                                    Margin="0,0,0,8">
+                                <WrapPanel HorizontalAlignment="Center">
+                                    <Button x:Name="SidebarPinButton"
+                                            Style="{StaticResource SidebarChromeButtonStyle}"
+                                            Click="SidebarPinButton_Click"
+                                            ToolTip="Pin sidebar" />
+                                </WrapPanel>
+                            </Border>
 
-                        <ScrollViewer x:Name="SidebarContentHost"
-                                      Grid.Row="1"
-                                      VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <StackPanel Grid.Row="0">
+                            <ScrollViewer x:Name="SidebarContentHost"
+                                          Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0">
                                 <ToggleButton Margin="0,6,0,6"
                                               Style="{StaticResource WordWrapToggleStyle}"
                                               IsChecked="{Binding IsWordWrapEnabled, Mode=TwoWay}" />
@@ -1332,8 +1339,17 @@
                                                  Checked="MainSidebarNavigation_Checked" />
                                     </StackPanel>
                                 </StackPanel>
-                            </Grid>
-                        </ScrollViewer>
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
+
+                        <Button x:Name="SidebarEdgeMoveButton"
+                                Style="{StaticResource SidebarEdgeHandleStyle}"
+                                Visibility="Collapsed"
+                                Panel.ZIndex="5"
+                                Click="SidebarMoveButton_Click"
+                                MouseEnter="SidebarEdgeMoveButton_MouseEnter"
+                                MouseLeave="SidebarEdgeMoveButton_MouseLeave" />
                     </Grid>
                 </Border>
             </Grid>

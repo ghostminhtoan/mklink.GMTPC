@@ -1749,10 +1749,48 @@ namespace MKLink
                 SidebarPinButton.ToolTip = _isSidebarPinned ? "Unpin sidebar" : "Pin sidebar";
             }
 
-            if (SidebarMoveButton != null)
+            if (SidebarEdgeMoveButton != null)
             {
-                SidebarMoveButton.Content = _isSidebarOnLeft ? "▶" : "◀";
-                SidebarMoveButton.ToolTip = _isSidebarOnLeft ? "Move sidebar right" : "Move sidebar left";
+                SidebarEdgeMoveButton.Content = _isSidebarOnLeft ? "▶" : "◀";
+                SidebarEdgeMoveButton.ToolTip = _isSidebarOnLeft ? "Move sidebar right" : "Move sidebar left";
+                SidebarEdgeMoveButton.HorizontalAlignment = _isSidebarOnLeft ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+                SidebarEdgeMoveButton.VerticalAlignment = VerticalAlignment.Center;
+                SidebarEdgeMoveButton.Margin = _isSidebarOnLeft
+                    ? new Thickness(0, 0, -12, 0)
+                    : new Thickness(-12, 0, 0, 0);
+                SidebarEdgeMoveButton.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void SidebarBorder_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (SidebarEdgeMoveButton != null)
+            {
+                SidebarEdgeMoveButton.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void SidebarBorder_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (SidebarEdgeMoveButton != null)
+            {
+                SidebarEdgeMoveButton.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void SidebarEdgeMoveButton_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (SidebarEdgeMoveButton != null)
+            {
+                SidebarEdgeMoveButton.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void SidebarEdgeMoveButton_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (SidebarBorder != null && !SidebarBorder.IsMouseOver && SidebarEdgeMoveButton != null)
+            {
+                SidebarEdgeMoveButton.Visibility = Visibility.Collapsed;
             }
         }
 
