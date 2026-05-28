@@ -134,6 +134,67 @@
             <Setter Property="MinWidth" Value="112" />
         </Style>
 
+        <Style x:Key="SidebarTabRadioStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushDark}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="TabBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="14"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"
+                                              ContentSource="Content"
+                                              RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource SurfaceElevatedBrush}" />
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="{StaticResource AccentBorderBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource AccentSoftBrush}" />
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="{StaticResource AccentBorderBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="TabBorder" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MainTabControlHiddenHeaderStyle" TargetType="TabControl" BasedOn="{StaticResource {x:Type TabControl}}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Border Background="Transparent">
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              ContentSource="SelectedContent"
+                                              Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="DarkContextMenuStyle" TargetType="ContextMenu">
             <Setter Property="Background" Value="{StaticResource PanelBrush}" />
             <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
@@ -472,11 +533,15 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="300" />
                 </Grid.ColumnDefinitions>
 
-                <TabControl Grid.Column="0">
-            <TabItem Header="Direct">
+                <TabControl x:Name="MainTabControl"
+                            Grid.Column="0"
+                            Style="{StaticResource MainTabControlHiddenHeaderStyle}"
+                            SelectionChanged="MainTabControl_SelectionChanged">
+                    <TabItem x:Name="DirectTabItem"
+                             Header="Direct">
                 <Grid Margin="0,6,0,0">
                     <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                         <TabItem Header="COPY" DataContext="{Binding CopyTab}">
@@ -645,12 +710,14 @@
                         </TabItem>
                     </TabControl>
                 </Grid>
-            </TabItem>
+                    </TabItem>
 
-            <TabItem x:Name="CheckMklinkTab" Header="Check mklink">
-            </TabItem>
+                    <TabItem x:Name="CheckMklinkTab"
+                             Header="Check mklink">
+                    </TabItem>
 
-            <TabItem Header="Result">
+                    <TabItem x:Name="ResultTabItem"
+                             Header="Result">
                 <Grid Margin="0,6,0,0">
                     <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                         <TabItem Header="Direct">
@@ -750,9 +817,10 @@
                         </TabItem>
                     </TabControl>
                 </Grid>
-            </TabItem>
+                    </TabItem>
 
-            <TabItem Header="Reverse">
+                    <TabItem x:Name="ReverseTabItem"
+                             Header="Reverse">
                 <Grid Margin="0,6,0,0">
                     <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                         <TabItem Header="COPY REVERSE" DataContext="{Binding CopyReverseTab}">
@@ -818,13 +886,13 @@
                         </TabItem>
                     </TabControl>
                 </Grid>
-            </TabItem>
+                    </TabItem>
                 </TabControl>
 
                 <Border Grid.Column="1"
                         Margin="8,0,0,0"
                         Style="{StaticResource PanelBorderStyle}"
-                        Padding="6">
+                        Padding="8">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -833,13 +901,39 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <ToggleButton Grid.Row="0"
+                        <StackPanel Grid.Row="0"
+                                    Margin="0,0,0,8">
+                            <RadioButton x:Name="DirectTabButton"
+                                         Content="Direct"
+                                         Style="{StaticResource SidebarTabRadioStyle}"
+                                         IsChecked="True"
+                                         Checked="MainSidebarTabButton_Checked"
+                                         Margin="0,0,0,6" />
+                            <RadioButton x:Name="CheckMklinkTabButton"
+                                         Content="Check mklink"
+                                         Style="{StaticResource SidebarTabRadioStyle}"
+                                         Checked="MainSidebarTabButton_Checked"
+                                         Margin="0,0,0,6" />
+                            <RadioButton x:Name="ResultTabButton"
+                                         Content="Result"
+                                         Style="{StaticResource SidebarTabRadioStyle}"
+                                         Checked="MainSidebarTabButton_Checked"
+                                         Margin="0,0,0,6" />
+                            <RadioButton x:Name="ReverseTabButton"
+                                         Content="Reverse"
+                                         Style="{StaticResource SidebarTabRadioStyle}"
+                                         Checked="MainSidebarTabButton_Checked" />
+                        </StackPanel>
+
+                        <ToggleButton Grid.Row="1"
                                       Margin="0,0,0,6"
                                       Style="{StaticResource WordWrapToggleStyle}"
                                       IsChecked="{Binding IsWordWrapEnabled, Mode=TwoWay}" />
 
-                        <Button Grid.Row="1"
+                        <Button Grid.Row="2"
                                 Margin="0,0,0,6"
                                 Content="Delete selected"
                                 MinHeight="28"
@@ -847,7 +941,7 @@
                                 FontSize="11"
                                 Click="DeleteSelectedLinesButton_Click" />
 
-                        <Button Grid.Row="2"
+                        <Button Grid.Row="3"
                                 Margin="0,0,0,6"
                                 Content="Clear all"
                                 MinHeight="28"
@@ -855,7 +949,7 @@
                                 FontSize="11"
                                 Click="ClearAllButton_Click" />
 
-                        <Button Grid.Row="3"
+                        <Button Grid.Row="4"
                                 Margin="0,0,0,6"
                                 Content="Save .md"
                                 MinHeight="28"
@@ -873,7 +967,7 @@
                             </Button.Style>
                         </Button>
 
-                        <Button Grid.Row="4"
+                        <Button Grid.Row="5"
                                 Margin="0,0,0,6"
                                 Content="Load .md"
                                 MinHeight="26"
@@ -893,7 +987,7 @@
                             </Button.Style>
                         </Button>
 
-                        <StackPanel Grid.Row="5">
+                        <StackPanel Grid.Row="6">
                             <TextBlock Text="Search"
                                        Margin="0,0,0,3"
                                        VerticalAlignment="Center"

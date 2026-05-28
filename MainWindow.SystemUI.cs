@@ -30,6 +30,7 @@ namespace MKLink
         private readonly List<Process> _launchedProcesses = new List<Process>();
         private bool _isClosing;
         private bool _isSyncingLinkedSelection;
+        private bool _isSyncingMainTabSelection;
         private string _currentMarkdownFilePath;
 
         public MainWindow()
@@ -68,6 +69,77 @@ namespace MKLink
             if (SearchBox != null)
             {
                 _checkMklinkWindow.UpdateSearchFilter(SearchBox.Text);
+            }
+        }
+
+        private void MainSidebarTabButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_isSyncingMainTabSelection || MainTabControl == null)
+            {
+                return;
+            }
+
+            _isSyncingMainTabSelection = true;
+            try
+            {
+                if (DirectTabButton != null && DirectTabButton.IsChecked == true && DirectTabItem != null)
+                {
+                    MainTabControl.SelectedItem = DirectTabItem;
+                }
+                else if (CheckMklinkTabButton != null && CheckMklinkTabButton.IsChecked == true && CheckMklinkTab != null)
+                {
+                    MainTabControl.SelectedItem = CheckMklinkTab;
+                }
+                else if (ResultTabButton != null && ResultTabButton.IsChecked == true && ResultTabItem != null)
+                {
+                    MainTabControl.SelectedItem = ResultTabItem;
+                }
+                else if (ReverseTabButton != null && ReverseTabButton.IsChecked == true && ReverseTabItem != null)
+                {
+                    MainTabControl.SelectedItem = ReverseTabItem;
+                }
+            }
+            finally
+            {
+                _isSyncingMainTabSelection = false;
+            }
+        }
+
+        private void MainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isSyncingMainTabSelection)
+            {
+                return;
+            }
+
+            _isSyncingMainTabSelection = true;
+            try
+            {
+                if (MainTabControl == null)
+                {
+                    return;
+                }
+
+                if (MainTabControl.SelectedItem == DirectTabItem && DirectTabButton != null)
+                {
+                    DirectTabButton.IsChecked = true;
+                }
+                else if (MainTabControl.SelectedItem == CheckMklinkTab && CheckMklinkTabButton != null)
+                {
+                    CheckMklinkTabButton.IsChecked = true;
+                }
+                else if (MainTabControl.SelectedItem == ResultTabItem && ResultTabButton != null)
+                {
+                    ResultTabButton.IsChecked = true;
+                }
+                else if (MainTabControl.SelectedItem == ReverseTabItem && ReverseTabButton != null)
+                {
+                    ReverseTabButton.IsChecked = true;
+                }
+            }
+            finally
+            {
+                _isSyncingMainTabSelection = false;
             }
         }
 
