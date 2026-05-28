@@ -899,8 +899,13 @@
                                        VerticalAlignment="Center"
                                        Foreground="{StaticResource MutedTextBrush}" />
                             <TextBox x:Name="SearchBox"
+                                     Style="{StaticResource DarkTextBoxBaseStyle}"
+                                     Foreground="{StaticResource TextBrush}"
                                      MinHeight="28"
                                      Height="28"
+                                     Padding="8,3"
+                                     VerticalContentAlignment="Center"
+                                     FontSize="11"
                                      TextChanged="SearchBox_TextChanged" />
                         </StackPanel>
                     </Grid>
