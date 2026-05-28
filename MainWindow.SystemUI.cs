@@ -31,7 +31,11 @@ namespace MKLink
         private bool _isClosing;
         private bool _isSyncingLinkedSelection;
         private bool _isSyncingMainTabSelection;
+        private bool _isSidebarPinned = true;
+        private bool _isSidebarOnLeft;
         private string _currentMarkdownFilePath;
+        private const double SidebarPinnedWidth = 300;
+        private const double SidebarCollapsedWidth = 84;
 
         public MainWindow()
         {
@@ -1684,6 +1688,8 @@ namespace MKLink
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            ApplySidebarLayout();
+
             if (_startupPromptShown)
             {
                 return;
@@ -1692,6 +1698,62 @@ namespace MKLink
             _startupPromptShown = true;
             // De dialog sau khi window da render xong, tranh man hinh trang luc khoi dong.
             Dispatcher.BeginInvoke(new Action(ShowStartupPromptSafely), DispatcherPriority.ContextIdle);
+        }
+
+        private void SidebarMoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            _isSidebarOnLeft = !_isSidebarOnLeft;
+            ApplySidebarLayout();
+        }
+
+        private void SidebarPinButton_Click(object sender, RoutedEventArgs e)
+        {
+            _isSidebarPinned = !_isSidebarPinned;
+            ApplySidebarLayout();
+        }
+
+        private void ApplySidebarLayout()
+        {
+            if (MainContentColumn == null || SidebarLayoutColumn == null || MainTabControl == null || SidebarBorder == null)
+            {
+                return;
+            }
+
+            double sidebarWidth = _isSidebarPinned ? SidebarPinnedWidth : SidebarCollapsedWidth;
+
+            if (_isSidebarOnLeft)
+            {
+                Grid.SetColumn(SidebarBorder, 0);
+                Grid.SetColumn(MainTabControl, 1);
+                MainContentColumn.Width = new GridLength(sidebarWidth, GridUnitType.Pixel);
+                SidebarLayoutColumn.Width = new GridLength(1, GridUnitType.Star);
+                SidebarBorder.Margin = new Thickness(0, 0, 8, 0);
+            }
+            else
+            {
+                Grid.SetColumn(MainTabControl, 0);
+                Grid.SetColumn(SidebarBorder, 1);
+                MainContentColumn.Width = new GridLength(1, GridUnitType.Star);
+                SidebarLayoutColumn.Width = new GridLength(sidebarWidth, GridUnitType.Pixel);
+                SidebarBorder.Margin = new Thickness(8, 0, 0, 0);
+            }
+
+            if (SidebarContentHost != null)
+            {
+                SidebarContentHost.Visibility = _isSidebarPinned ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            if (SidebarPinButton != null)
+            {
+                SidebarPinButton.Content = _isSidebarPinned ? "📌" : "◌";
+                SidebarPinButton.ToolTip = _isSidebarPinned ? "Unpin sidebar" : "Pin sidebar";
+            }
+
+            if (SidebarMoveButton != null)
+            {
+                SidebarMoveButton.Content = _isSidebarOnLeft ? "▶" : "◀";
+                SidebarMoveButton.ToolTip = _isSidebarOnLeft ? "Move sidebar right" : "Move sidebar left";
+            }
         }
 
         private void ShowStartupPromptSafely()
