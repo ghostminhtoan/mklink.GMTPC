@@ -180,6 +180,106 @@
             </Setter>
         </Style>
 
+        <Style x:Key="SidebarTabRadioDirectStyle" TargetType="RadioButton" BasedOn="{StaticResource SidebarTabRadioStyle}">
+            <Setter Property="Background" Value="#123049" />
+            <Setter Property="Foreground" Value="#DCEBFF" />
+            <Setter Property="BorderBrush" Value="#2E6EB3" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#17385A" />
+                    <Setter Property="BorderBrush" Value="#4C8BFF" />
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="#1B4570" />
+                    <Setter Property="BorderBrush" Value="#4C8BFF" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.45" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SidebarTabRadioCheckStyle" TargetType="RadioButton" BasedOn="{StaticResource SidebarTabRadioStyle}">
+            <Setter Property="Background" Value="#10333A" />
+            <Setter Property="Foreground" Value="#D7FBFF" />
+            <Setter Property="BorderBrush" Value="#2A7E8F" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#143D46" />
+                    <Setter Property="BorderBrush" Value="#34B7CC" />
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="#1A5664" />
+                    <Setter Property="BorderBrush" Value="#34B7CC" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.45" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SidebarTabRadioResultStyle" TargetType="RadioButton" BasedOn="{StaticResource SidebarTabRadioStyle}">
+            <Setter Property="Background" Value="#1A2F26" />
+            <Setter Property="Foreground" Value="#E4FFF2" />
+            <Setter Property="BorderBrush" Value="#3A8A63" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#203B2F" />
+                    <Setter Property="BorderBrush" Value="#2B9369" />
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="#234C3B" />
+                    <Setter Property="BorderBrush" Value="#2B9369" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.45" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SidebarTabRadioResultReverseStyle" TargetType="RadioButton" BasedOn="{StaticResource SidebarTabRadioStyle}">
+            <Setter Property="Background" Value="#2D2634" />
+            <Setter Property="Foreground" Value="#F0ECFF" />
+            <Setter Property="BorderBrush" Value="#7A5AC9" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#352D40" />
+                    <Setter Property="BorderBrush" Value="#9278FF" />
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="#47385F" />
+                    <Setter Property="BorderBrush" Value="#9278FF" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.45" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SidebarTabRadioReverseStyle" TargetType="RadioButton" BasedOn="{StaticResource SidebarTabRadioStyle}">
+            <Setter Property="Background" Value="#38261E" />
+            <Setter Property="Foreground" Value="#FFF0E4" />
+            <Setter Property="BorderBrush" Value="#C97728" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#463126" />
+                    <Setter Property="BorderBrush" Value="#E08A38" />
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="#5A3D28" />
+                    <Setter Property="BorderBrush" Value="#E08A38" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.45" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="MainTabControlHiddenHeaderStyle" TargetType="TabControl" BasedOn="{StaticResource {x:Type TabControl}}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -1077,7 +1177,7 @@
                                 <RadioButton x:Name="DirectTabButton"
                                              Content="Direct"
                                              GroupName="MainTabs"
-                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             Style="{StaticResource SidebarTabRadioDirectStyle}"
                                              IsChecked="True"
                                              Checked="MainSidebarNavigation_Checked"
                                              Margin="0,0,0,6" />
@@ -1085,41 +1185,41 @@
                                     <RadioButton x:Name="DirectCopyTabButton"
                                                  Content="COPY"
                                                  GroupName="DirectChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Style="{StaticResource SidebarTabRadioDirectStyle}"
                                                  IsChecked="True"
                                                  Checked="MainSidebarNavigation_Checked"
                                                  Margin="0,0,0,6" />
                                     <RadioButton x:Name="DirectDeleteTabButton"
                                                  Content="DELETE"
                                                  GroupName="DirectChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Style="{StaticResource SidebarTabRadioDirectStyle}"
                                                  Checked="MainSidebarNavigation_Checked"
                                                  Margin="0,0,0,6" />
                                     <RadioButton x:Name="DirectMklinkTabButton"
                                                  Content="MKLINK D"
                                                  GroupName="DirectChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Style="{StaticResource SidebarTabRadioDirectStyle}"
                                                  Checked="MainSidebarNavigation_Checked" />
                                 </StackPanel>
 
                                 <RadioButton x:Name="CheckMklinkTabButton"
                                              Content="Check mklink"
                                              GroupName="MainTabs"
-                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             Style="{StaticResource SidebarTabRadioCheckStyle}"
                                              Checked="MainSidebarNavigation_Checked"
                                              Margin="0,0,0,6" />
 
                                 <RadioButton x:Name="ResultTabButton"
                                              Content="Result"
                                              GroupName="MainTabs"
-                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             Style="{StaticResource SidebarTabRadioResultStyle}"
                                              Checked="MainSidebarNavigation_Checked"
                                              Margin="0,0,0,6" />
                                 <StackPanel Margin="12,0,0,10">
                                     <RadioButton x:Name="ResultDirectSectionButton"
                                                  Content="Direct"
                                                  GroupName="ResultSections"
-                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Style="{StaticResource SidebarTabRadioResultStyle}"
                                                  IsChecked="True"
                                                  Checked="MainSidebarNavigation_Checked"
                                                  Margin="0,0,0,6" />
@@ -1127,53 +1227,53 @@
                                         <RadioButton x:Name="ResultCopyDirectTabButton"
                                                      Content="Result copy direct"
                                                      GroupName="ResultDirectChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioStyle}"
+                                                     Style="{StaticResource SidebarTabRadioResultStyle}"
                                                      IsChecked="True"
                                                      Checked="MainSidebarNavigation_Checked"
                                                      Margin="0,0,0,6" />
                                         <RadioButton x:Name="ResultDeleteDirectTabButton"
                                                      Content="Result delete direct"
                                                      GroupName="ResultDirectChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioStyle}"
+                                                     Style="{StaticResource SidebarTabRadioResultStyle}"
                                                      Checked="MainSidebarNavigation_Checked"
                                                      Margin="0,0,0,6" />
                                         <RadioButton x:Name="ResultMklinkDirectTabButton"
                                                      Content="Result mklink D direct"
                                                      GroupName="ResultDirectChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioStyle}"
+                                                     Style="{StaticResource SidebarTabRadioResultStyle}"
                                                      Checked="MainSidebarNavigation_Checked"
                                                      Margin="0,0,0,6" />
                                         <RadioButton x:Name="ResultCombinedDirectTabButton"
                                                      Content="Result copy delete and mklink direct"
                                                      GroupName="ResultDirectChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioStyle}"
+                                                     Style="{StaticResource SidebarTabRadioResultStyle}"
                                                      Checked="MainSidebarNavigation_Checked" />
                                     </StackPanel>
 
                                     <RadioButton x:Name="ResultReverseSectionButton"
                                                  Content="Result Reverse"
                                                  GroupName="ResultSections"
-                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Style="{StaticResource SidebarTabRadioResultReverseStyle}"
                                                  Checked="MainSidebarNavigation_Checked"
                                                  Margin="0,0,0,6" />
                                     <StackPanel Margin="12,0,0,0">
                                         <RadioButton x:Name="ResultCopyReverseTabButton"
                                                      Content="Copy reverse"
                                                      GroupName="ResultReverseChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioStyle}"
+                                                     Style="{StaticResource SidebarTabRadioResultReverseStyle}"
                                                      IsChecked="True"
                                                      Checked="MainSidebarNavigation_Checked"
                                                      Margin="0,0,0,6" />
                                         <RadioButton x:Name="ResultDeleteReverseTabButton"
                                                      Content="Delete reverse"
                                                      GroupName="ResultReverseChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioStyle}"
+                                                     Style="{StaticResource SidebarTabRadioResultReverseStyle}"
                                                      Checked="MainSidebarNavigation_Checked"
                                                      Margin="0,0,0,6" />
                                         <RadioButton x:Name="ResultCombinedReverseTabButton"
                                                      Content="Delete and copy reverse"
                                                      GroupName="ResultReverseChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioStyle}"
+                                                     Style="{StaticResource SidebarTabRadioResultReverseStyle}"
                                                      Checked="MainSidebarNavigation_Checked" />
                                     </StackPanel>
                                 </StackPanel>
@@ -1181,21 +1281,21 @@
                                 <RadioButton x:Name="ReverseTabButton"
                                              Content="Reverse"
                                              GroupName="MainTabs"
-                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             Style="{StaticResource SidebarTabRadioReverseStyle}"
                                              Checked="MainSidebarNavigation_Checked"
                                              Margin="0,0,0,6" />
                                 <StackPanel Margin="12,0,0,10">
                                     <RadioButton x:Name="ReverseCopyTabButton"
                                                  Content="COPY REVERSE"
                                                  GroupName="ReverseChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Style="{StaticResource SidebarTabRadioReverseStyle}"
                                                  IsChecked="True"
                                                  Checked="MainSidebarNavigation_Checked"
                                                  Margin="0,0,0,6" />
                                     <RadioButton x:Name="ReverseDeleteTabButton"
                                                  Content="DELETE REVERSE"
                                                  GroupName="ReverseChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Style="{StaticResource SidebarTabRadioReverseStyle}"
                                                  Checked="MainSidebarNavigation_Checked" />
                                 </StackPanel>
                             </StackPanel>
