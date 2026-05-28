@@ -30,7 +30,6 @@ namespace MKLink
         private readonly List<Process> _launchedProcesses = new List<Process>();
         private bool _isClosing;
         private bool _isSyncingLinkedSelection;
-        private bool _isSyncingMainTabSelection;
         private bool _isSidebarPinned = true;
         private bool _isSidebarExpanded;
         private string _currentMarkdownFilePath;
@@ -77,143 +76,9 @@ namespace MKLink
             }
         }
 
-        private void MainSidebarNavigation_Checked(object sender, RoutedEventArgs e)
-        {
-            if (_isSyncingMainTabSelection || MainTabControl == null)
-            {
-                return;
-            }
-
-            var radio = sender as FrameworkElement;
-            if (radio == null)
-            {
-                return;
-            }
-
-            _isSyncingMainTabSelection = true;
-            try
-            {
-                switch (radio.Name)
-                {
-                    case "DirectTabButton":
-                        MainTabControl.SelectedItem = DirectTabItem;
-                        break;
-                    case "CheckMklinkTabButton":
-                        MainTabControl.SelectedItem = CheckMklinkTab;
-                        break;
-                    case "ResultTabButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        break;
-                    case "ReverseTabButton":
-                        MainTabControl.SelectedItem = ReverseTabItem;
-                        break;
-                    case "DirectCopyTabButton":
-                        MainTabControl.SelectedItem = DirectTabItem;
-                        if (DirectChildTabControl != null) DirectChildTabControl.SelectedItem = DirectCopyTabItem;
-                        break;
-                    case "DirectDeleteTabButton":
-                        MainTabControl.SelectedItem = DirectTabItem;
-                        if (DirectChildTabControl != null) DirectChildTabControl.SelectedItem = DirectDeleteTabItem;
-                        break;
-                    case "DirectMklinkTabButton":
-                        MainTabControl.SelectedItem = DirectTabItem;
-                        if (DirectChildTabControl != null) DirectChildTabControl.SelectedItem = DirectMklinkTabItem;
-                        break;
-                    case "ResultDirectSectionButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        if (ResultChildTabControl != null) ResultChildTabControl.SelectedItem = ResultDirectSectionTabItem;
-                        break;
-                    case "ResultReverseSectionButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        if (ResultChildTabControl != null) ResultChildTabControl.SelectedItem = ResultReverseSectionTabItem;
-                        break;
-                    case "ResultCopyDirectTabButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        if (ResultChildTabControl != null) ResultChildTabControl.SelectedItem = ResultDirectSectionTabItem;
-                        if (ResultDirectChildTabControl != null) ResultDirectChildTabControl.SelectedItem = ResultCopyDirectTabItem;
-                        break;
-                    case "ResultDeleteDirectTabButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        if (ResultChildTabControl != null) ResultChildTabControl.SelectedItem = ResultDirectSectionTabItem;
-                        if (ResultDirectChildTabControl != null) ResultDirectChildTabControl.SelectedItem = ResultDeleteDirectTabItem;
-                        break;
-                    case "ResultMklinkDirectTabButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        if (ResultChildTabControl != null) ResultChildTabControl.SelectedItem = ResultDirectSectionTabItem;
-                        if (ResultDirectChildTabControl != null) ResultDirectChildTabControl.SelectedItem = ResultMklinkDirectTabItem;
-                        break;
-                    case "ResultCombinedDirectTabButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        if (ResultChildTabControl != null) ResultChildTabControl.SelectedItem = ResultDirectSectionTabItem;
-                        if (ResultDirectChildTabControl != null) ResultDirectChildTabControl.SelectedItem = ResultCombinedDirectTabItem;
-                        break;
-                    case "ResultCopyReverseTabButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        if (ResultChildTabControl != null) ResultChildTabControl.SelectedItem = ResultReverseSectionTabItem;
-                        if (ResultReverseChildTabControl != null) ResultReverseChildTabControl.SelectedItem = ResultCopyReverseTabItem;
-                        break;
-                    case "ResultDeleteReverseTabButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        if (ResultChildTabControl != null) ResultChildTabControl.SelectedItem = ResultReverseSectionTabItem;
-                        if (ResultReverseChildTabControl != null) ResultReverseChildTabControl.SelectedItem = ResultDeleteReverseTabItem;
-                        break;
-                    case "ResultCombinedReverseTabButton":
-                        MainTabControl.SelectedItem = ResultTabItem;
-                        if (ResultChildTabControl != null) ResultChildTabControl.SelectedItem = ResultReverseSectionTabItem;
-                        if (ResultReverseChildTabControl != null) ResultReverseChildTabControl.SelectedItem = ResultCombinedReverseTabItem;
-                        break;
-                    case "ReverseCopyTabButton":
-                        MainTabControl.SelectedItem = ReverseTabItem;
-                        if (ReverseChildTabControl != null) ReverseChildTabControl.SelectedItem = ReverseCopyTabItem;
-                        break;
-                    case "ReverseDeleteTabButton":
-                        MainTabControl.SelectedItem = ReverseTabItem;
-                        if (ReverseChildTabControl != null) ReverseChildTabControl.SelectedItem = ReverseDeleteTabItem;
-                        break;
-                }
-            }
-            finally
-            {
-                _isSyncingMainTabSelection = false;
-            }
-        }
-
         private void MainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_isSyncingMainTabSelection)
-            {
-                return;
-            }
-
-            _isSyncingMainTabSelection = true;
-            try
-            {
-                if (MainTabControl == null)
-                {
-                    return;
-                }
-
-                if (MainTabControl.SelectedItem == DirectTabItem && DirectTabButton != null)
-                {
-                    DirectTabButton.IsChecked = true;
-                }
-                else if (MainTabControl.SelectedItem == CheckMklinkTab && CheckMklinkTabButton != null)
-                {
-                    CheckMklinkTabButton.IsChecked = true;
-                }
-                else if (MainTabControl.SelectedItem == ResultTabItem && ResultTabButton != null)
-                {
-                    ResultTabButton.IsChecked = true;
-                }
-                else if (MainTabControl.SelectedItem == ReverseTabItem && ReverseTabButton != null)
-                {
-                    ReverseTabButton.IsChecked = true;
-                }
-            }
-            finally
-            {
-                _isSyncingMainTabSelection = false;
-            }
+            // Main tabs now use the native TabControl header, so no extra sync is needed.
         }
 
         private static string GetBuildTimeText()

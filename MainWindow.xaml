@@ -1,4 +1,4 @@
-<Window x:Class="MKLink.MainWindow"
+﻿<Window x:Class="MKLink.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -738,7 +738,6 @@
 
                 <TabControl x:Name="MainTabControl"
                             Grid.Column="0"
-                            Style="{StaticResource MainTabControlHiddenHeaderStyle}"
                             SelectionChanged="MainTabControl_SelectionChanged">
                     <TabItem x:Name="DirectTabItem"
                              Header="Direct">
@@ -1232,132 +1231,6 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="1">
-                                <RadioButton x:Name="DirectTabButton"
-                                             Content="Direct"
-                                             GroupName="MainTabs"
-                                             Style="{StaticResource SidebarTabRadioDirectStyle}"
-                                             IsChecked="True"
-                                             Checked="MainSidebarNavigation_Checked"
-                                             Margin="0,0,0,6" />
-                                <StackPanel Margin="12,0,0,10">
-                                    <RadioButton x:Name="DirectCopyTabButton"
-                                                 Content="COPY"
-                                                 GroupName="DirectChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioDirectStyle}"
-                                                 IsChecked="True"
-                                                 Checked="MainSidebarNavigation_Checked"
-                                                 Margin="0,0,0,6" />
-                                    <RadioButton x:Name="DirectDeleteTabButton"
-                                                 Content="DELETE"
-                                                 GroupName="DirectChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioDirectStyle}"
-                                                 Checked="MainSidebarNavigation_Checked"
-                                                 Margin="0,0,0,6" />
-                                    <RadioButton x:Name="DirectMklinkTabButton"
-                                                 Content="MKLINK D"
-                                                 GroupName="DirectChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioDirectStyle}"
-                                                 Checked="MainSidebarNavigation_Checked" />
-                                </StackPanel>
-
-                                <RadioButton x:Name="CheckMklinkTabButton"
-                                             Content="Check mklink"
-                                             GroupName="MainTabs"
-                                             Style="{StaticResource SidebarTabRadioCheckStyle}"
-                                             Checked="MainSidebarNavigation_Checked"
-                                             Margin="0,0,0,6" />
-
-                                <RadioButton x:Name="ResultTabButton"
-                                             Content="Result"
-                                             GroupName="MainTabs"
-                                             Style="{StaticResource SidebarTabRadioResultStyle}"
-                                             Checked="MainSidebarNavigation_Checked"
-                                             Margin="0,0,0,6" />
-                                <StackPanel Margin="12,0,0,10">
-                                    <RadioButton x:Name="ResultDirectSectionButton"
-                                                 Content="Direct"
-                                                 GroupName="ResultSections"
-                                                 Style="{StaticResource SidebarTabRadioResultStyle}"
-                                                 IsChecked="True"
-                                                 Checked="MainSidebarNavigation_Checked"
-                                                 Margin="0,0,0,6" />
-                                    <StackPanel Margin="12,0,0,8">
-                                        <RadioButton x:Name="ResultCopyDirectTabButton"
-                                                     Content="Result copy direct"
-                                                     GroupName="ResultDirectChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioResultStyle}"
-                                                     IsChecked="True"
-                                                     Checked="MainSidebarNavigation_Checked"
-                                                     Margin="0,0,0,6" />
-                                        <RadioButton x:Name="ResultDeleteDirectTabButton"
-                                                     Content="Result delete direct"
-                                                     GroupName="ResultDirectChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioResultStyle}"
-                                                     Checked="MainSidebarNavigation_Checked"
-                                                     Margin="0,0,0,6" />
-                                        <RadioButton x:Name="ResultMklinkDirectTabButton"
-                                                     Content="Result mklink D direct"
-                                                     GroupName="ResultDirectChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioResultStyle}"
-                                                     Checked="MainSidebarNavigation_Checked"
-                                                     Margin="0,0,0,6" />
-                                        <RadioButton x:Name="ResultCombinedDirectTabButton"
-                                                     Content="Result copy delete and mklink direct"
-                                                     GroupName="ResultDirectChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioResultStyle}"
-                                                     Checked="MainSidebarNavigation_Checked" />
-                                    </StackPanel>
-
-                                    <RadioButton x:Name="ResultReverseSectionButton"
-                                                 Content="Result Reverse"
-                                                 GroupName="ResultSections"
-                                                 Style="{StaticResource SidebarTabRadioResultReverseStyle}"
-                                                 Checked="MainSidebarNavigation_Checked"
-                                                 Margin="0,0,0,6" />
-                                    <StackPanel Margin="12,0,0,0">
-                                        <RadioButton x:Name="ResultCopyReverseTabButton"
-                                                     Content="Copy reverse"
-                                                     GroupName="ResultReverseChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioResultReverseStyle}"
-                                                     IsChecked="True"
-                                                     Checked="MainSidebarNavigation_Checked"
-                                                     Margin="0,0,0,6" />
-                                        <RadioButton x:Name="ResultDeleteReverseTabButton"
-                                                     Content="Delete reverse"
-                                                     GroupName="ResultReverseChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioResultReverseStyle}"
-                                                     Checked="MainSidebarNavigation_Checked"
-                                                     Margin="0,0,0,6" />
-                                        <RadioButton x:Name="ResultCombinedReverseTabButton"
-                                                     Content="Delete and copy reverse"
-                                                     GroupName="ResultReverseChildTabs"
-                                                     Style="{StaticResource SidebarTabRadioResultReverseStyle}"
-                                                     Checked="MainSidebarNavigation_Checked" />
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <RadioButton x:Name="ReverseTabButton"
-                                             Content="Reverse"
-                                             GroupName="MainTabs"
-                                             Style="{StaticResource SidebarTabRadioReverseStyle}"
-                                             Checked="MainSidebarNavigation_Checked"
-                                             Margin="0,0,0,6" />
-                                <StackPanel Margin="12,0,0,10">
-                                    <RadioButton x:Name="ReverseCopyTabButton"
-                                                 Content="COPY REVERSE"
-                                                 GroupName="ReverseChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioReverseStyle}"
-                                                 IsChecked="True"
-                                                 Checked="MainSidebarNavigation_Checked"
-                                                 Margin="0,0,0,6" />
-                                    <RadioButton x:Name="ReverseDeleteTabButton"
-                                                 Content="DELETE REVERSE"
-                                                 GroupName="ReverseChildTabs"
-                                                 Style="{StaticResource SidebarTabRadioReverseStyle}"
-                                                 Checked="MainSidebarNavigation_Checked" />
-                                    </StackPanel>
-                                </StackPanel>
                                 </Grid>
                             </ScrollViewer>
                         </Grid>
@@ -1390,7 +1263,7 @@
                 </StackPanel>
 
                 <Button
-                Content="Ủng hộ tác giả Ma Minh Toàn 1993"
+                Content="á»¦ng há»™ tÃ¡c giáº£ Ma Minh ToÃ n 1993"
                 HorizontalAlignment="Right"
                 MinWidth="320"
                 MinHeight="38"
