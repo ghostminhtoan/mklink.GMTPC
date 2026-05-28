@@ -319,14 +319,43 @@
             <Setter Property="Margin" Value="0,0,6,0" />
         </Style>
 
-        <Style x:Key="SidebarEdgeHandleStyle" TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
-            <Setter Property="Width" Value="16" />
-            <Setter Property="Height" Value="96" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="Opacity" Value="0.78" />
+        <Style x:Key="SidebarEdgeHandleStyle" TargetType="Thumb">
+            <Setter Property="Width" Value="18" />
+            <Setter Property="Height" Value="104" />
             <Setter Property="Cursor" Value="SizeWE" />
+            <Setter Property="Opacity" Value="0.82" />
             <Setter Property="ToolTip" Value="Resize sidebar" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="HandleBorder"
+                                Background="#4C8BFF"
+                                BorderBrush="#2E6EB3"
+                                BorderThickness="1"
+                                CornerRadius="9"
+                                Opacity="{TemplateBinding Opacity}">
+                            <TextBlock Text="↔"
+                                       Foreground="White"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="HandleBorder" Property="Background" Value="#5D97FF" />
+                                <Setter TargetName="HandleBorder" Property="BorderBrush" Value="#5D97FF" />
+                                <Setter Property="Opacity" Value="1" />
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="HandleBorder" Property="Background" Value="#7AA8FF" />
+                                <Setter TargetName="HandleBorder" Property="BorderBrush" Value="#7AA8FF" />
+                                <Setter Property="Opacity" Value="1" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="MainTabControlHiddenHeaderStyle" TargetType="TabControl" BasedOn="{StaticResource {x:Type TabControl}}">
@@ -743,7 +772,6 @@
                              Header="Direct">
                 <Grid Margin="0,6,0,0">
                     <TabControl x:Name="DirectChildTabControl"
-                                Style="{StaticResource MainTabControlHiddenHeaderStyle}"
                                 ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                         <TabItem x:Name="DirectCopyTabItem" Header="COPY" DataContext="{Binding CopyTab}">
                             <Grid Margin="0,6,0,0">
@@ -870,7 +898,7 @@
                                         Style="{StaticResource PanelBorderStyle}">
                                     <TextBlock Margin="12,9"
                                                Foreground="{StaticResource MutedTextBrush}"
-                                               Text="DELETE phu thuoc Tab COPY: chi lay input Copy va khong co output." />
+                                               Text="DELETE phụ thuộc Tab COPY: chỉ lấy input Copy và không có output." />
                                 </Border>
 
                                 <ContentControl Grid.Row="1"
@@ -890,7 +918,7 @@
                                         Style="{StaticResource PanelBorderStyle}">
                                     <TextBlock Margin="12,9"
                                                Foreground="{StaticResource MutedTextBrush}"
-                                               Text="MKLINK D phu thuoc Tab COPY: input va output mirror y chang Copy." />
+                                               Text="MKLINK D phụ thuộc Tab COPY: input và output mirror y chang Copy." />
                                 </Border>
 
                                 <Grid Grid.Row="1">
@@ -921,12 +949,10 @@
                              Header="Result">
                 <Grid Margin="0,6,0,0">
                     <TabControl x:Name="ResultChildTabControl"
-                                Style="{StaticResource MainTabControlHiddenHeaderStyle}"
                                 ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                         <TabItem x:Name="ResultDirectSectionTabItem" Header="Direct">
                             <Grid Margin="0,6,0,0">
                                 <TabControl x:Name="ResultDirectChildTabControl"
-                                            Style="{StaticResource MainTabControlHiddenHeaderStyle}"
                                             ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                                     <TabItem x:Name="ResultCopyDirectTabItem" Header="Result copy direct">
                                         <ContentControl Content="{Binding CopyTab}" ContentTemplate="{StaticResource ResultPanelTemplate}" />
@@ -979,7 +1005,6 @@
                         <TabItem x:Name="ResultReverseSectionTabItem" Header="Reverse">
                             <Grid Margin="0,6,0,0">
                                 <TabControl x:Name="ResultReverseChildTabControl"
-                                            Style="{StaticResource MainTabControlHiddenHeaderStyle}"
                                             ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                                     <TabItem x:Name="ResultCopyReverseTabItem" Header="Copy reverse">
                                         <ContentControl Content="{Binding CopyReverseTab}" ContentTemplate="{StaticResource ReverseResultPanelTemplate}" />
@@ -1030,7 +1055,6 @@
                              Header="Reverse">
                 <Grid Margin="0,6,0,0">
                     <TabControl x:Name="ReverseChildTabControl"
-                                Style="{StaticResource MainTabControlHiddenHeaderStyle}"
                                 ItemContainerStyle="{StaticResource ChildTabItemStyle}">
                         <TabItem x:Name="ReverseCopyTabItem" Header="COPY REVERSE" DataContext="{Binding CopyReverseTab}">
                             <Grid Margin="0,6,0,0">
@@ -1235,13 +1259,13 @@
                             </ScrollViewer>
                         </Grid>
 
-                        <Button x:Name="SidebarEdgeMoveButton"
-                                Style="{StaticResource SidebarEdgeHandleStyle}"
-                                Visibility="Visible"
-                                Panel.ZIndex="5"
-                                Click="SidebarEdgeResizeButton_Click"
-                                MouseEnter="SidebarEdgeMoveButton_MouseEnter"
-                                MouseLeave="SidebarEdgeMoveButton_MouseLeave" />
+                        <Thumb x:Name="SidebarEdgeMoveButton"
+                               Style="{StaticResource SidebarEdgeHandleStyle}"
+                               Visibility="Visible"
+                               Panel.ZIndex="5"
+                               DragDelta="SidebarEdgeMoveButton_DragDelta"
+                               MouseEnter="SidebarEdgeMoveButton_MouseEnter"
+                               MouseLeave="SidebarEdgeMoveButton_MouseLeave" />
                     </Grid>
                 </Border>
             </Grid>
@@ -1263,7 +1287,7 @@
                 </StackPanel>
 
                 <Button
-                Content="á»¦ng há»™ tÃ¡c giáº£ Ma Minh ToÃ n 1993"
+                Content="Ủng hộ tác giả Ma Minh Toàn 1993"
                 HorizontalAlignment="Right"
                 MinWidth="320"
                 MinHeight="38"

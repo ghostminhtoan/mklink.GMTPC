@@ -9,6 +9,7 @@ using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -31,10 +32,11 @@ namespace MKLink
         private bool _isClosing;
         private bool _isSyncingLinkedSelection;
         private bool _isSidebarPinned = true;
-        private bool _isSidebarExpanded;
+        private double _sidebarWidth = 150;
         private string _currentMarkdownFilePath;
-        private const double SidebarPinnedNarrowWidth = 150;
-        private const double SidebarPinnedExpandedWidth = 300;
+        private const double SidebarPinnedWidth = 150;
+        private const double SidebarMinWidth = 120;
+        private const double SidebarMaxWidth = 420;
         private const double SidebarCollapsedWidth = 84;
 
         public MainWindow()
@@ -1566,12 +1568,6 @@ namespace MKLink
             Dispatcher.BeginInvoke(new Action(ShowStartupPromptSafely), DispatcherPriority.ContextIdle);
         }
 
-        private void SidebarEdgeResizeButton_Click(object sender, RoutedEventArgs e)
-        {
-            _isSidebarExpanded = !_isSidebarExpanded;
-            ApplySidebarLayout();
-        }
-
         private void SidebarPinButton_Click(object sender, RoutedEventArgs e)
         {
             _isSidebarPinned = !_isSidebarPinned;
@@ -1585,9 +1581,7 @@ namespace MKLink
                 return;
             }
 
-            double sidebarWidth = _isSidebarPinned
-                ? (_isSidebarExpanded ? SidebarPinnedExpandedWidth : SidebarPinnedNarrowWidth)
-                : SidebarCollapsedWidth;
+            double sidebarWidth = _isSidebarPinned ? _sidebarWidth : SidebarCollapsedWidth;
 
             Grid.SetColumn(MainTabControl, 0);
             Grid.SetColumn(SidebarBorder, 1);
@@ -1608,11 +1602,9 @@ namespace MKLink
 
             if (SidebarEdgeMoveButton != null)
             {
-                SidebarEdgeMoveButton.Content = _isSidebarExpanded ? "⟷" : "⟶";
-                SidebarEdgeMoveButton.ToolTip = _isSidebarExpanded ? "Narrow sidebar" : "Widen sidebar";
                 SidebarEdgeMoveButton.HorizontalAlignment = HorizontalAlignment.Left;
                 SidebarEdgeMoveButton.VerticalAlignment = VerticalAlignment.Center;
-                SidebarEdgeMoveButton.Margin = new Thickness(-8, 0, 0, 0);
+                SidebarEdgeMoveButton.Margin = new Thickness(-9, 0, 0, 0);
                 SidebarEdgeMoveButton.Visibility = Visibility.Visible;
                 SidebarEdgeMoveButton.Opacity = _isSidebarPinned ? 0.78 : 0.45;
             }
@@ -1649,6 +1641,30 @@ namespace MKLink
                 SidebarEdgeMoveButton.Opacity = SidebarBorder != null && SidebarBorder.IsMouseOver
                     ? 1.0
                     : (_isSidebarPinned ? 0.78 : 0.45);
+            }
+        }
+
+        private void SidebarEdgeMoveButton_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (!_isSidebarPinned)
+            {
+                return;
+            }
+
+            double nextWidth = _sidebarWidth - e.HorizontalChange;
+            if (nextWidth < SidebarMinWidth)
+            {
+                nextWidth = SidebarMinWidth;
+            }
+            else if (nextWidth > SidebarMaxWidth)
+            {
+                nextWidth = SidebarMaxWidth;
+            }
+
+            if (Math.Abs(nextWidth - _sidebarWidth) > 0.1)
+            {
+                _sidebarWidth = nextWidth;
+                ApplySidebarLayout();
             }
         }
         private void ShowStartupPromptSafely()
