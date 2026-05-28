@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -32,9 +32,10 @@ namespace MKLink
         private bool _isSyncingLinkedSelection;
         private bool _isSyncingMainTabSelection;
         private bool _isSidebarPinned = true;
-        private bool _isSidebarOnLeft;
+        private bool _isSidebarExpanded;
         private string _currentMarkdownFilePath;
-        private const double SidebarPinnedWidth = 300;
+        private const double SidebarPinnedNarrowWidth = 150;
+        private const double SidebarPinnedExpandedWidth = 300;
         private const double SidebarCollapsedWidth = 84;
 
         public MainWindow()
@@ -1700,9 +1701,9 @@ namespace MKLink
             Dispatcher.BeginInvoke(new Action(ShowStartupPromptSafely), DispatcherPriority.ContextIdle);
         }
 
-        private void SidebarMoveButton_Click(object sender, RoutedEventArgs e)
+        private void SidebarEdgeResizeButton_Click(object sender, RoutedEventArgs e)
         {
-            _isSidebarOnLeft = !_isSidebarOnLeft;
+            _isSidebarExpanded = !_isSidebarExpanded;
             ApplySidebarLayout();
         }
 
@@ -1719,24 +1720,15 @@ namespace MKLink
                 return;
             }
 
-            double sidebarWidth = _isSidebarPinned ? SidebarPinnedWidth : SidebarCollapsedWidth;
+            double sidebarWidth = _isSidebarPinned
+                ? (_isSidebarExpanded ? SidebarPinnedExpandedWidth : SidebarPinnedNarrowWidth)
+                : SidebarCollapsedWidth;
 
-            if (_isSidebarOnLeft)
-            {
-                Grid.SetColumn(SidebarBorder, 0);
-                Grid.SetColumn(MainTabControl, 1);
-                MainContentColumn.Width = new GridLength(sidebarWidth, GridUnitType.Pixel);
-                SidebarLayoutColumn.Width = new GridLength(1, GridUnitType.Star);
-                SidebarBorder.Margin = new Thickness(0, 0, 8, 0);
-            }
-            else
-            {
-                Grid.SetColumn(MainTabControl, 0);
-                Grid.SetColumn(SidebarBorder, 1);
-                MainContentColumn.Width = new GridLength(1, GridUnitType.Star);
-                SidebarLayoutColumn.Width = new GridLength(sidebarWidth, GridUnitType.Pixel);
-                SidebarBorder.Margin = new Thickness(8, 0, 0, 0);
-            }
+            Grid.SetColumn(MainTabControl, 0);
+            Grid.SetColumn(SidebarBorder, 1);
+            MainContentColumn.Width = new GridLength(1, GridUnitType.Star);
+            SidebarLayoutColumn.Width = new GridLength(sidebarWidth, GridUnitType.Pixel);
+            SidebarBorder.Margin = new Thickness(8, 0, 0, 0);
 
             if (SidebarContentHost != null)
             {
@@ -1751,14 +1743,13 @@ namespace MKLink
 
             if (SidebarEdgeMoveButton != null)
             {
-                SidebarEdgeMoveButton.Content = _isSidebarOnLeft ? "▶" : "◀";
-                SidebarEdgeMoveButton.ToolTip = _isSidebarOnLeft ? "Move sidebar right" : "Move sidebar left";
-                SidebarEdgeMoveButton.HorizontalAlignment = _isSidebarOnLeft ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+                SidebarEdgeMoveButton.Content = _isSidebarExpanded ? "⟷" : "⟶";
+                SidebarEdgeMoveButton.ToolTip = _isSidebarExpanded ? "Narrow sidebar" : "Widen sidebar";
+                SidebarEdgeMoveButton.HorizontalAlignment = HorizontalAlignment.Left;
                 SidebarEdgeMoveButton.VerticalAlignment = VerticalAlignment.Center;
-                SidebarEdgeMoveButton.Margin = _isSidebarOnLeft
-                    ? new Thickness(0, 0, -12, 0)
-                    : new Thickness(-12, 0, 0, 0);
-                SidebarEdgeMoveButton.Visibility = Visibility.Collapsed;
+                SidebarEdgeMoveButton.Margin = new Thickness(-8, 0, 0, 0);
+                SidebarEdgeMoveButton.Visibility = Visibility.Visible;
+                SidebarEdgeMoveButton.Opacity = _isSidebarPinned ? 0.78 : 0.45;
             }
         }
 
@@ -1766,7 +1757,7 @@ namespace MKLink
         {
             if (SidebarEdgeMoveButton != null)
             {
-                SidebarEdgeMoveButton.Visibility = Visibility.Visible;
+                SidebarEdgeMoveButton.Opacity = 1.0;
             }
         }
 
@@ -1774,7 +1765,7 @@ namespace MKLink
         {
             if (SidebarEdgeMoveButton != null)
             {
-                SidebarEdgeMoveButton.Visibility = Visibility.Collapsed;
+                SidebarEdgeMoveButton.Opacity = _isSidebarPinned ? 0.78 : 0.45;
             }
         }
 
@@ -1782,18 +1773,19 @@ namespace MKLink
         {
             if (SidebarEdgeMoveButton != null)
             {
-                SidebarEdgeMoveButton.Visibility = Visibility.Visible;
+                SidebarEdgeMoveButton.Opacity = 1.0;
             }
         }
 
         private void SidebarEdgeMoveButton_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (SidebarBorder != null && !SidebarBorder.IsMouseOver && SidebarEdgeMoveButton != null)
+            if (SidebarEdgeMoveButton != null)
             {
-                SidebarEdgeMoveButton.Visibility = Visibility.Collapsed;
+                SidebarEdgeMoveButton.Opacity = SidebarBorder != null && SidebarBorder.IsMouseOver
+                    ? 1.0
+                    : (_isSidebarPinned ? 0.78 : 0.45);
             }
         }
-
         private void ShowStartupPromptSafely()
         {
             try
