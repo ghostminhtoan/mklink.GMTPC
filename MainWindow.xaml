@@ -447,10 +447,6 @@
                 Style="{StaticResource PanelBorderStyle}"
                 Padding="10">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -478,61 +474,19 @@
                                FontWeight="SemiBold"
                                Foreground="{StaticResource AccentHoverBrush}" />
                 </Border>
-
-                <WrapPanel Grid.Row="1"
-                           Grid.ColumnSpan="2"
-                           Margin="0,6,0,0"
-                           VerticalAlignment="Center">
-                    <ToggleButton Style="{StaticResource WordWrapToggleStyle}"
-                                  IsChecked="{Binding IsWordWrapEnabled, Mode=TwoWay}" />
-                    <Button Content="Delete selected lines"
-                            Margin="8,0,0,0"
-                            Click="DeleteSelectedLinesButton_Click" />
-                    <Button Content="Clear all"
-                            Margin="8,0,0,0"
-                            Click="ClearAllButton_Click" />
-                    <Button Content="Save .md"
-                            Margin="8,0,0,0"
-                            Click="SaveMarkdownButton_Click">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
-                                <Setter Property="Background" Value="#2B9369" />
-                                <Setter Property="BorderBrush" Value="#2B9369" />
-                                <Setter Property="MinWidth" Value="96" />
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button Content="Load .md"
-                            Margin="8,0,0,0"
-                            Click="LoadMarkdownButton_Click">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
-                                <Setter Property="Background" Value="#C97728" />
-                                <Setter Property="BorderBrush" Value="#C97728" />
-                                <Setter Property="MinWidth" Value="96" />
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <StackPanel Orientation="Horizontal"
-                                Margin="8,0,0,0"
-                                VerticalAlignment="Center">
-                        <TextBlock Text="Search"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,8,0"
-                                   Foreground="{StaticResource MutedTextBrush}" />
-                        <TextBox x:Name="SearchBox"
-                                 Width="160"
-                                 VerticalAlignment="Center"
-                                 TextChanged="SearchBox_TextChanged" />
-                    </StackPanel>
-                </WrapPanel>
             </Grid>
         </Border>
 
         <Border Grid.Row="1"
                 Style="{StaticResource PanelBorderStyle}"
                 Padding="8">
-        <TabControl>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="180" />
+                </Grid.ColumnDefinitions>
+
+                <TabControl Grid.Column="0">
             <TabItem Header="Direct">
                 <Grid Margin="0,6,0,0">
                     <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
@@ -876,7 +830,104 @@
                     </TabControl>
                 </Grid>
             </TabItem>
-        </TabControl>
+                </TabControl>
+
+                <Border Grid.Column="1"
+                        Margin="8,0,0,0"
+                        Style="{StaticResource PanelBorderStyle}"
+                        Padding="6">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <ToggleButton Grid.Row="0"
+                                      Grid.Column="0"
+                                      Margin="0,0,4,4"
+                                      Style="{StaticResource WordWrapToggleStyle}"
+                                      IsChecked="{Binding IsWordWrapEnabled, Mode=TwoWay}" />
+
+                        <Button Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="4,0,0,4"
+                                Content="Delete selected"
+                                MinWidth="0"
+                                MinHeight="28"
+                                Padding="6,3"
+                                FontSize="10"
+                                Click="DeleteSelectedLinesButton_Click" />
+
+                        <Button Grid.Row="1"
+                                Grid.Column="0"
+                                Margin="0,0,4,4"
+                                Content="Clear all"
+                                MinWidth="0"
+                                MinHeight="28"
+                                Padding="6,3"
+                                FontSize="10"
+                                Click="ClearAllButton_Click" />
+
+                        <Button Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="4,0,0,4"
+                                Content="Save .md"
+                                MinWidth="0"
+                                MinHeight="28"
+                                Padding="6,3"
+                                FontSize="10"
+                                Click="SaveMarkdownButton_Click">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                    <Setter Property="Background" Value="#2B9369" />
+                                    <Setter Property="BorderBrush" Value="#2B9369" />
+                                    <Setter Property="Padding" Value="6,3" />
+                                    <Setter Property="MinHeight" Value="28" />
+                                    <Setter Property="FontSize" Value="10" />
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <Button Grid.Row="2"
+                                Grid.Column="0"
+                                Margin="0,0,4,4"
+                                Content="Load .md"
+                                MinWidth="0"
+                                MinHeight="28"
+                                Padding="6,3"
+                                FontSize="10"
+                                Click="LoadMarkdownButton_Click">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                    <Setter Property="Background" Value="#C97728" />
+                                    <Setter Property="BorderBrush" Value="#C97728" />
+                                    <Setter Property="Padding" Value="6,3" />
+                                    <Setter Property="MinHeight" Value="28" />
+                                    <Setter Property="FontSize" Value="10" />
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <StackPanel Grid.Row="2"
+                                    Grid.Column="1"
+                                    Margin="4,0,0,4">
+                            <TextBlock Text="Search"
+                                       Margin="0,0,0,3"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource MutedTextBrush}" />
+                            <TextBox x:Name="SearchBox"
+                                     MinHeight="28"
+                                     TextChanged="SearchBox_TextChanged" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
         </Border>
 
         <Border Grid.Row="2"
