@@ -315,30 +315,6 @@ namespace MKLink
             }
         }
 
-        private void RowContextMenuEdit_Click(object sender, RoutedEventArgs e)
-        {
-            var menuItem = sender as MenuItem;
-            if (menuItem == null) return;
-
-            var contextMenu = menuItem.Parent as ContextMenu;
-            var row = contextMenu != null ? contextMenu.PlacementTarget as DataGridRow : null;
-            var item = row != null ? row.DataContext as PathItem : null;
-
-            HandleEditOutput(item, menuItem);
-        }
-
-        private void RowContextMenuRestore_Click(object sender, RoutedEventArgs e)
-        {
-            var menuItem = sender as MenuItem;
-            if (menuItem == null) return;
-
-            var contextMenu = menuItem.Parent as ContextMenu;
-            var row = contextMenu != null ? contextMenu.PlacementTarget as DataGridRow : null;
-            var item = row != null ? row.DataContext as PathItem : null;
-
-            HandleRestoreDefault(item, menuItem);
-        }
-
         private void OutputGridRow_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var row = sender as DataGridRow;
@@ -864,6 +840,51 @@ namespace MKLink
             var view = new ListCollectionView(tab.SourceItems);
             view.Filter = item => FilterEditOutputRow(tab, item as PathItem);
             grid.ItemsSource = view;
+        }
+
+        private void OutputGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            var row = e.Row;
+            var item = row != null ? row.DataContext as PathItem : null;
+            if (row == null)
+            {
+                return;
+            }
+
+            if (item == null || item.IsPlaceholder)
+            {
+                row.ContextMenu = null;
+                return;
+            }
+
+            var menu = new ContextMenu
+            {
+                Style = TryFindResource("DarkContextMenuStyle") as Style
+            };
+
+            var editItem = new MenuItem
+            {
+                Header = "Edit Output Path",
+                Style = TryFindResource("DarkContextMenuItemStyle") as Style
+            };
+            editItem.Click += delegate
+            {
+                HandleEditOutput(item, row);
+            };
+
+            var restoreItem = new MenuItem
+            {
+                Header = "Restore Default Path",
+                Style = TryFindResource("DarkContextMenuItemStyle") as Style
+            };
+            restoreItem.Click += delegate
+            {
+                HandleRestoreDefault(item, row);
+            };
+
+            menu.Items.Add(editItem);
+            menu.Items.Add(restoreItem);
+            row.ContextMenu = menu;
         }
 
         private void EditOutputFilterHeaderButton_Click(object sender, RoutedEventArgs e)

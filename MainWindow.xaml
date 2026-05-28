@@ -308,24 +308,13 @@
                               IsReadOnly="True"
                               SelectionChanged="InputGrid_SelectionChanged"
                               Loaded="EditOutputGrid_Loaded"
+                              LoadingRow="OutputGrid_LoadingRow"
                               Sorting="OutputGrid_Sorting"
                               PreviewKeyDown="OutputGrid_PreviewKeyDown">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow"
                                    BasedOn="{StaticResource DarkDataGridRowStyle}">
                                 <EventSetter Event="MouseDoubleClick" Handler="OutputGridRow_MouseDoubleClick" />
-                                <Setter Property="ContextMenu">
-                                    <Setter.Value>
-                                        <ContextMenu Style="{StaticResource DarkContextMenuStyle}">
-                                            <MenuItem Header="Edit Output Path"
-                                                      Style="{StaticResource DarkContextMenuItemStyle}"
-                                                      Click="RowContextMenuEdit_Click" />
-                                            <MenuItem Header="Restore Default Path"
-                                                      Style="{StaticResource DarkContextMenuItemStyle}"
-                                                      Click="RowContextMenuRestore_Click" />
-                                        </ContextMenu>
-                                    </Setter.Value>
-                                </Setter>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPlaceholder}" Value="True">
                                         <Setter Property="ContextMenu" Value="{x:Null}" />
