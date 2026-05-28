@@ -142,7 +142,8 @@
             <Setter Property="Padding" Value="12,6" />
             <Setter Property="MinHeight" Value="32" />
             <Setter Property="MinWidth" Value="0" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="SemiBold" />
@@ -533,7 +534,7 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="340" />
                 </Grid.ColumnDefinitions>
 
                 <TabControl x:Name="MainTabControl"
@@ -543,8 +544,10 @@
                     <TabItem x:Name="DirectTabItem"
                              Header="Direct">
                 <Grid Margin="0,6,0,0">
-                    <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
-                        <TabItem Header="COPY" DataContext="{Binding CopyTab}">
+                    <TabControl x:Name="DirectChildTabControl"
+                                Style="{StaticResource MainTabControlHiddenHeaderStyle}"
+                                ItemContainerStyle="{StaticResource ChildTabItemStyle}">
+                        <TabItem x:Name="DirectCopyTabItem" Header="COPY" DataContext="{Binding CopyTab}">
                             <Grid Margin="0,6,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -658,7 +661,7 @@
                             </Grid>
                         </TabItem>
 
-                        <TabItem Header="DELETE" DataContext="{Binding DeleteTab}">
+                        <TabItem x:Name="DirectDeleteTabItem" Header="DELETE" DataContext="{Binding DeleteTab}">
                             <Grid Margin="0,6,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -678,7 +681,7 @@
                             </Grid>
                         </TabItem>
 
-                        <TabItem Header="MKLINK D" DataContext="{Binding MklinkTab}">
+                        <TabItem x:Name="DirectMklinkTabItem" Header="MKLINK D" DataContext="{Binding MklinkTab}">
                             <Grid Margin="0,6,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -719,20 +722,24 @@
                     <TabItem x:Name="ResultTabItem"
                              Header="Result">
                 <Grid Margin="0,6,0,0">
-                    <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
-                        <TabItem Header="Direct">
+                    <TabControl x:Name="ResultChildTabControl"
+                                Style="{StaticResource MainTabControlHiddenHeaderStyle}"
+                                ItemContainerStyle="{StaticResource ChildTabItemStyle}">
+                        <TabItem x:Name="ResultDirectSectionTabItem" Header="Direct">
                             <Grid Margin="0,6,0,0">
-                                <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
-                                    <TabItem Header="Result copy direct">
+                                <TabControl x:Name="ResultDirectChildTabControl"
+                                            Style="{StaticResource MainTabControlHiddenHeaderStyle}"
+                                            ItemContainerStyle="{StaticResource ChildTabItemStyle}">
+                                    <TabItem x:Name="ResultCopyDirectTabItem" Header="Result copy direct">
                                         <ContentControl Content="{Binding CopyTab}" ContentTemplate="{StaticResource ResultPanelTemplate}" />
                                     </TabItem>
-                                    <TabItem Header="Result delete direct">
+                                    <TabItem x:Name="ResultDeleteDirectTabItem" Header="Result delete direct">
                                         <ContentControl Content="{Binding DeleteTab}" ContentTemplate="{StaticResource ResultPanelTemplate}" />
                                     </TabItem>
-                                    <TabItem Header="Result mklink D direct">
+                                    <TabItem x:Name="ResultMklinkDirectTabItem" Header="Result mklink D direct">
                                         <ContentControl Content="{Binding MklinkTab}" ContentTemplate="{StaticResource ResultPanelTemplate}" />
                                     </TabItem>
-                                    <TabItem Header="Result copy delete and mklink direct">
+                                    <TabItem x:Name="ResultCombinedDirectTabItem" Header="Result copy delete and mklink direct">
                                         <Border Margin="0,6,0,0" Style="{StaticResource PanelBorderStyle}">
                                             <Grid Margin="10">
                                                 <Grid.RowDefinitions>
@@ -771,16 +778,18 @@
                                 </TabControl>
                             </Grid>
                         </TabItem>
-                        <TabItem Header="Reverse">
+                        <TabItem x:Name="ResultReverseSectionTabItem" Header="Reverse">
                             <Grid Margin="0,6,0,0">
-                                <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
-                                    <TabItem Header="Copy reverse">
+                                <TabControl x:Name="ResultReverseChildTabControl"
+                                            Style="{StaticResource MainTabControlHiddenHeaderStyle}"
+                                            ItemContainerStyle="{StaticResource ChildTabItemStyle}">
+                                    <TabItem x:Name="ResultCopyReverseTabItem" Header="Copy reverse">
                                         <ContentControl Content="{Binding CopyReverseTab}" ContentTemplate="{StaticResource ReverseResultPanelTemplate}" />
                                     </TabItem>
-                                    <TabItem Header="Delete reverse">
+                                    <TabItem x:Name="ResultDeleteReverseTabItem" Header="Delete reverse">
                                         <ContentControl Content="{Binding DeleteReverseTab}" ContentTemplate="{StaticResource ReverseResultPanelTemplate}" />
                                     </TabItem>
-                                    <TabItem Header="Delete and copy reverse">
+                                    <TabItem x:Name="ResultCombinedReverseTabItem" Header="Delete and copy reverse">
                                         <Border Margin="0,6,0,0" Style="{StaticResource PanelBorderStyle}">
                                             <Grid Margin="10">
                                                 <Grid.RowDefinitions>
@@ -822,8 +831,10 @@
                     <TabItem x:Name="ReverseTabItem"
                              Header="Reverse">
                 <Grid Margin="0,6,0,0">
-                    <TabControl ItemContainerStyle="{StaticResource ChildTabItemStyle}">
-                        <TabItem Header="COPY REVERSE" DataContext="{Binding CopyReverseTab}">
+                    <TabControl x:Name="ReverseChildTabControl"
+                                Style="{StaticResource MainTabControlHiddenHeaderStyle}"
+                                ItemContainerStyle="{StaticResource ChildTabItemStyle}">
+                        <TabItem x:Name="ReverseCopyTabItem" Header="COPY REVERSE" DataContext="{Binding CopyReverseTab}">
                             <Grid Margin="0,6,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -854,7 +865,7 @@
                             </Grid>
                         </TabItem>
 
-                        <TabItem Header="DELETE REVERSE" DataContext="{Binding DeleteReverseTab}">
+                        <TabItem x:Name="ReverseDeleteTabItem" Header="DELETE REVERSE" DataContext="{Binding DeleteReverseTab}">
                             <Grid Margin="0,6,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -893,116 +904,205 @@
                         Margin="8,0,0,0"
                         Style="{StaticResource PanelBorderStyle}"
                         Padding="8">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0"
-                                    Margin="0,0,0,8">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
                             <RadioButton x:Name="DirectTabButton"
                                          Content="Direct"
+                                         GroupName="MainTabs"
                                          Style="{StaticResource SidebarTabRadioStyle}"
                                          IsChecked="True"
-                                         Checked="MainSidebarTabButton_Checked"
+                                         Checked="MainSidebarNavigation_Checked"
                                          Margin="0,0,0,6" />
+                            <StackPanel Margin="12,0,0,10">
+                                <RadioButton x:Name="DirectCopyTabButton"
+                                             Content="COPY"
+                                             GroupName="DirectChildTabs"
+                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             IsChecked="True"
+                                             Checked="MainSidebarNavigation_Checked"
+                                             Margin="0,0,0,6" />
+                                <RadioButton x:Name="DirectDeleteTabButton"
+                                             Content="DELETE"
+                                             GroupName="DirectChildTabs"
+                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             Checked="MainSidebarNavigation_Checked"
+                                             Margin="0,0,0,6" />
+                                <RadioButton x:Name="DirectMklinkTabButton"
+                                             Content="MKLINK D"
+                                             GroupName="DirectChildTabs"
+                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             Checked="MainSidebarNavigation_Checked" />
+                            </StackPanel>
+
                             <RadioButton x:Name="CheckMklinkTabButton"
                                          Content="Check mklink"
+                                         GroupName="MainTabs"
                                          Style="{StaticResource SidebarTabRadioStyle}"
-                                         Checked="MainSidebarTabButton_Checked"
+                                         Checked="MainSidebarNavigation_Checked"
                                          Margin="0,0,0,6" />
+
                             <RadioButton x:Name="ResultTabButton"
                                          Content="Result"
+                                         GroupName="MainTabs"
                                          Style="{StaticResource SidebarTabRadioStyle}"
-                                         Checked="MainSidebarTabButton_Checked"
+                                         Checked="MainSidebarNavigation_Checked"
                                          Margin="0,0,0,6" />
+                            <StackPanel Margin="12,0,0,10">
+                                <RadioButton x:Name="ResultDirectSectionButton"
+                                             Content="Direct"
+                                             GroupName="ResultSections"
+                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             IsChecked="True"
+                                             Checked="MainSidebarNavigation_Checked"
+                                             Margin="0,0,0,6" />
+                                <StackPanel Margin="12,0,0,8">
+                                    <RadioButton x:Name="ResultCopyDirectTabButton"
+                                                 Content="Result copy direct"
+                                                 GroupName="ResultDirectChildTabs"
+                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 IsChecked="True"
+                                                 Checked="MainSidebarNavigation_Checked"
+                                                 Margin="0,0,0,6" />
+                                    <RadioButton x:Name="ResultDeleteDirectTabButton"
+                                                 Content="Result delete direct"
+                                                 GroupName="ResultDirectChildTabs"
+                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Checked="MainSidebarNavigation_Checked"
+                                                 Margin="0,0,0,6" />
+                                    <RadioButton x:Name="ResultMklinkDirectTabButton"
+                                                 Content="Result mklink D direct"
+                                                 GroupName="ResultDirectChildTabs"
+                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Checked="MainSidebarNavigation_Checked"
+                                                 Margin="0,0,0,6" />
+                                    <RadioButton x:Name="ResultCombinedDirectTabButton"
+                                                 Content="Result copy delete and mklink direct"
+                                                 GroupName="ResultDirectChildTabs"
+                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Checked="MainSidebarNavigation_Checked" />
+                                </StackPanel>
+
+                                <RadioButton x:Name="ResultReverseSectionButton"
+                                             Content="Reverse"
+                                             GroupName="ResultSections"
+                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             Checked="MainSidebarNavigation_Checked"
+                                             Margin="0,0,0,6" />
+                                <StackPanel Margin="12,0,0,0">
+                                    <RadioButton x:Name="ResultCopyReverseTabButton"
+                                                 Content="Copy reverse"
+                                                 GroupName="ResultReverseChildTabs"
+                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 IsChecked="True"
+                                                 Checked="MainSidebarNavigation_Checked"
+                                                 Margin="0,0,0,6" />
+                                    <RadioButton x:Name="ResultDeleteReverseTabButton"
+                                                 Content="Delete reverse"
+                                                 GroupName="ResultReverseChildTabs"
+                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Checked="MainSidebarNavigation_Checked"
+                                                 Margin="0,0,0,6" />
+                                    <RadioButton x:Name="ResultCombinedReverseTabButton"
+                                                 Content="Delete and copy reverse"
+                                                 GroupName="ResultReverseChildTabs"
+                                                 Style="{StaticResource SidebarTabRadioStyle}"
+                                                 Checked="MainSidebarNavigation_Checked" />
+                                </StackPanel>
+                            </StackPanel>
+
                             <RadioButton x:Name="ReverseTabButton"
                                          Content="Reverse"
+                                         GroupName="MainTabs"
                                          Style="{StaticResource SidebarTabRadioStyle}"
-                                         Checked="MainSidebarTabButton_Checked" />
+                                         Checked="MainSidebarNavigation_Checked"
+                                         Margin="0,0,0,6" />
+                            <StackPanel Margin="12,0,0,10">
+                                <RadioButton x:Name="ReverseCopyTabButton"
+                                             Content="COPY REVERSE"
+                                             GroupName="ReverseChildTabs"
+                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             IsChecked="True"
+                                             Checked="MainSidebarNavigation_Checked"
+                                             Margin="0,0,0,6" />
+                                <RadioButton x:Name="ReverseDeleteTabButton"
+                                             Content="DELETE REVERSE"
+                                             GroupName="ReverseChildTabs"
+                                             Style="{StaticResource SidebarTabRadioStyle}"
+                                             Checked="MainSidebarNavigation_Checked" />
+                            </StackPanel>
+
+                            <ToggleButton Margin="0,6,0,6"
+                                          Style="{StaticResource WordWrapToggleStyle}"
+                                          IsChecked="{Binding IsWordWrapEnabled, Mode=TwoWay}" />
+
+                            <Button Margin="0,0,0,6"
+                                    Content="Delete selected"
+                                    MinHeight="28"
+                                    Padding="8,4"
+                                    FontSize="11"
+                                    Click="DeleteSelectedLinesButton_Click" />
+
+                            <Button Margin="0,0,0,6"
+                                    Content="Clear all"
+                                    MinHeight="28"
+                                    Padding="8,4"
+                                    FontSize="11"
+                                    Click="ClearAllButton_Click" />
+
+                            <Button Margin="0,0,0,6"
+                                    Content="Save .md"
+                                    MinHeight="28"
+                                    Padding="8,4"
+                                    FontSize="11"
+                                    Click="SaveMarkdownButton_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                        <Setter Property="Background" Value="#2B9369" />
+                                        <Setter Property="BorderBrush" Value="#2B9369" />
+                                        <Setter Property="Padding" Value="8,4" />
+                                        <Setter Property="MinHeight" Value="28" />
+                                        <Setter Property="FontSize" Value="11" />
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                            <Button Margin="0,0,0,6"
+                                    Content="Load .md"
+                                    MinHeight="26"
+                                    Padding="6,3"
+                                    FontSize="10"
+                                    VerticalAlignment="Top"
+                                    Click="LoadMarkdownButton_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
+                                        <Setter Property="Background" Value="#C97728" />
+                                        <Setter Property="BorderBrush" Value="#C97728" />
+                                        <Setter Property="Padding" Value="6,3" />
+                                        <Setter Property="MinHeight" Value="26" />
+                                        <Setter Property="FontSize" Value="10" />
+                                        <Setter Property="VerticalAlignment" Value="Top" />
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                            <StackPanel>
+                                <TextBlock Text="Search"
+                                           Margin="0,0,0,3"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource MutedTextBrush}" />
+                                <TextBox x:Name="SearchBox"
+                                         Style="{StaticResource DarkTextBoxBaseStyle}"
+                                         Foreground="{StaticResource TextBrush}"
+                                         MinHeight="28"
+                                         Height="28"
+                                         Padding="8,3"
+                                         VerticalContentAlignment="Center"
+                                         FontSize="11"
+                                         TextChanged="SearchBox_TextChanged" />
+                            </StackPanel>
                         </StackPanel>
-
-                        <ToggleButton Grid.Row="1"
-                                      Margin="0,0,0,6"
-                                      Style="{StaticResource WordWrapToggleStyle}"
-                                      IsChecked="{Binding IsWordWrapEnabled, Mode=TwoWay}" />
-
-                        <Button Grid.Row="2"
-                                Margin="0,0,0,6"
-                                Content="Delete selected"
-                                MinHeight="28"
-                                Padding="8,4"
-                                FontSize="11"
-                                Click="DeleteSelectedLinesButton_Click" />
-
-                        <Button Grid.Row="3"
-                                Margin="0,0,0,6"
-                                Content="Clear all"
-                                MinHeight="28"
-                                Padding="8,4"
-                                FontSize="11"
-                                Click="ClearAllButton_Click" />
-
-                        <Button Grid.Row="4"
-                                Margin="0,0,0,6"
-                                Content="Save .md"
-                                MinHeight="28"
-                                Padding="8,4"
-                                FontSize="11"
-                                Click="SaveMarkdownButton_Click">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
-                                    <Setter Property="Background" Value="#2B9369" />
-                                    <Setter Property="BorderBrush" Value="#2B9369" />
-                                    <Setter Property="Padding" Value="8,4" />
-                                    <Setter Property="MinHeight" Value="28" />
-                                    <Setter Property="FontSize" Value="11" />
-                                </Style>
-                            </Button.Style>
-                        </Button>
-
-                        <Button Grid.Row="5"
-                                Margin="0,0,0,6"
-                                Content="Load .md"
-                                MinHeight="26"
-                                Padding="6,3"
-                                FontSize="10"
-                                VerticalAlignment="Top"
-                                Click="LoadMarkdownButton_Click">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource DarkButtonBaseStyle}">
-                                    <Setter Property="Background" Value="#C97728" />
-                                    <Setter Property="BorderBrush" Value="#C97728" />
-                                    <Setter Property="Padding" Value="6,3" />
-                                    <Setter Property="MinHeight" Value="26" />
-                                    <Setter Property="FontSize" Value="10" />
-                                    <Setter Property="VerticalAlignment" Value="Top" />
-                                </Style>
-                            </Button.Style>
-                        </Button>
-
-                        <StackPanel Grid.Row="6">
-                            <TextBlock Text="Search"
-                                       Margin="0,0,0,3"
-                                       VerticalAlignment="Center"
-                                       Foreground="{StaticResource MutedTextBrush}" />
-                            <TextBox x:Name="SearchBox"
-                                     Style="{StaticResource DarkTextBoxBaseStyle}"
-                                     Foreground="{StaticResource TextBrush}"
-                                     MinHeight="28"
-                                     Height="28"
-                                     Padding="8,3"
-                                     VerticalContentAlignment="Center"
-                                     FontSize="11"
-                                     TextChanged="SearchBox_TextChanged" />
-                        </StackPanel>
-                    </Grid>
+                    </ScrollViewer>
                 </Border>
             </Grid>
         </Border>
